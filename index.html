@@ -109,6 +109,13 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--color-primary-dark);
         }
+
+        .tutorial-modal-slide {
+            display: none;
+        }
+        .tutorial-modal-slide.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -139,7 +146,8 @@
         </header>
 
         <main id="user-view" class="">
-            <div id="register-view" class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 border border-gray-700">
+            <!-- (MODIFICADO) 'p-6' para ficar mais compacto em celulares -->
+            <div id="register-view" class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
                 <h2 class="text-2xl font-semibold text-center text-gray-100 mb-6">Registro de Atividade</h2>
                 
                 <form id="register-activity-form" class="space-y-4" onsubmit="return false;">
@@ -191,16 +199,17 @@
                 </form>
             </div>
 
-            <div id="active-session-view" class="hidden max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 border border-gray-700 text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-secondary mx-auto mb-4">
+            <!-- (MODIFICADO) Layout da tela de sessão ativa (saída) para ser mais compacto -->
+            <div id="active-session-view" class="hidden max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-secondary mx-auto mb-3"> <!-- Tamanho reduzido -->
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
-                <h2 class="text-2xl font-semibold text-center text-gray-100 mb-2">Entrada Registrada!</h2>
-                <p class="text-lg text-gray-300 mb-1">Olá, <span id="session-welcome-name" class="font-bold">...</span></p>
-                <p class="text-sm text-gray-400 mb-2">Sua sessão está ativa.</p>
-                <p id="session-active-timer" class="text-lg text-gray-300 mb-6 font-medium">Calculando...</p>
+                <h2 class="text-xl font-semibold text-center text-gray-100 mb-1">Entrada Registrada!</h2> <!-- Fonte reduzida -->
+                <p class="text-base text-gray-300 mb-1">Olá, <span id="session-welcome-name" class="font-bold">...</span></p> <!-- Fonte reduzida -->
+                <p class="text-xs text-gray-400 mb-2">Sua sessão está ativa.</p> <!-- Fonte reduzida -->
+                <p id="session-active-timer" class="text-base text-gray-300 mb-4 font-medium">Calculando...</p> <!-- Fonte reduzida e margem -->
                 
-                <div class="pt-4">
+                <div class="pt-2"> <!-- Padding reduzido -->
                     <button type="button" id="session-exit-btn" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
                         <span>Registrar SAÍDA</span>
@@ -532,6 +541,7 @@
 
     </div>
 
+    <!-- (NOVO) MODAL DE NOTIFICAÇÃO DO USUÁRIO (PARA SUCESSO/ERRO) -->
     <div id="user-notification-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300">
         <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0" id="user-notification-content">
             <div id="modal-notification-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full">
@@ -541,6 +551,7 @@
         </div>
     </div>
 
+    <!-- (NOVO) MODAL DE AJUSTE MANUAL DE CHEGADA -->
     <div id="edit-arrival-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
         <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
@@ -588,6 +599,7 @@
         </div>
     </div>
 
+    <!-- (NOVO) MODAL DE OBSERVAÇÃO -->
     <div id="observation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
         <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
@@ -612,6 +624,64 @@
                     <button type="submit" id="modal-obs-save-btn" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">Salvar Observação</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- (NOVO) MODAL DE TUTORIAL DE BEM-VINDAS -->
+    <div id="tutorial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-md w-full p-6 transform transition-all scale-95 opacity-0" id="tutorial-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold leading-6 text-gray-100">Bem-vindo ao Registro de Atividade!</h3>
+                <button id="tutorial-close-btn" class="text-gray-400 hover:text-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="overflow-hidden relative h-64">
+                <div id="tutorial-slide-1" class="tutorial-modal-slide active p-2">
+                    <h4 class="text-lg font-medium text-primary mb-2">Passo 1: Preenchimento</h4>
+                    <p class="text-sm text-gray-300 mb-4">Preencha seu Nome, CPF, Empresa, Perfil e Placa(s) para registrar sua entrada.</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                </div>
+                <div id="tutorial-slide-2" class="tutorial-modal-slide p-2">
+                    <h4 class="text-lg font-medium text-primary mb-2">Passo 2: Permissão de Localização</h4>
+                    <p class="text-sm text-gray-300 mb-4">Para confirmar sua chegada, o navegador pedirá sua localização. Por favor, clique em <span class="font-bold text-gray-100">"Permitir"</span> ou <span class="font-bold text-gray-100">"Allow"</span>.</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
+                </div>
+                <div id="tutorial-slide-3" class="tutorial-modal-slide p-2">
+                    <h4 class="text-lg font-medium text-primary mb-2">Passo 3: Sessão Ativa</h4>
+                    <p class="text-sm text-gray-300 mb-4">Após a entrada, sua sessão mostrará o tempo de permanência. Mantenha esta página aberta ou reabra quando for sair.</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </div>
+                <div id="tutorial-slide-4" class="tutorial-modal-slide p-2">
+                    <h4 class="text-lg font-medium text-primary mb-2">Passo 4: Registrar Saída</h4>
+                    <p class="text-sm text-gray-300 mb-4">Ao final, apenas clique no botão vermelho "Registrar SAÍDA". O app pedirá sua localização novamente para finalizar.</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-red-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button id="tutorial-prev-btn" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Anterior</button>
+                <div class="flex space-x-2" id="tutorial-dots">
+                    <span class="w-2 h-2 bg-primary rounded-full"></span>
+                    <span class="w-2 h-2 bg-gray-600 rounded-full"></span>
+                    <span class="w-2 h-2 bg-gray-600 rounded-full"></span>
+                    <span class="w-2 h-2 bg-gray-600 rounded-full"></span>
+                </div>
+                <button id="tutorial-next-btn" class="bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">Próximo</button>
+                <button id="tutorial-finish-btn" class="hidden bg-secondary text-white font-bold py-2 px-4 rounded-md hover:bg-secondary-dark transition-colors duration-300">Entendi!</button>
+            </div>
         </div>
     </div>
 
@@ -641,9 +711,12 @@
             serverTimestamp,
             setLogLevel,
             orderBy,
-            Timestamp
+            Timestamp,
+            limit // (MODIFICADO) Importa a função 'limit'
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // (NOVO) Objeto de configuração do Firebase.
+        // SUBSTITUA ESTE BLOCO pelo seu objeto `firebaseConfig` copiado do console do Firebase.
         const firebaseConfig = {
         apiKey: "AIzaSyAPWUc6PcGw87ObV9UITqVjyHBB7iQc_VQ",
         authDomain: "registro-atividade.firebaseapp.com",
@@ -682,7 +755,6 @@
         const companyIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 11.25h6.75M9 15.75h6.75M9 20.25h6.75" /></svg>`;
         const adminIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.822-2.071-1.921-2.321a52.532 52.532 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m7.5-3.321c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 15.807v-.003c0-1.113-.822-2.071-1.921-2.321a52.522 52.522 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0M12.75 10.125c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M12.75 10.125v-.003c0-1.113-.822-2.071-1.921-2.321a52.548 52.548 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0" /></svg>`;
 
-
         let app, auth, db;
         let userId = null; 
         let currentActiveSessionId = null; 
@@ -704,12 +776,35 @@
         let currentPage = 1;
         const recordsPerPage = 25;
 
+        // (NOVO) Variáveis do Tutorial
+        const tutorialModal = document.getElementById('tutorial-modal');
+        const tutorialModalContent = document.getElementById('tutorial-modal-content');
+        const tutorialSlides = document.querySelectorAll('.tutorial-modal-slide');
+        const tutorialDots = document.getElementById('tutorial-dots').querySelectorAll('span');
+        const tutorialPrevBtn = document.getElementById('tutorial-prev-btn');
+        const tutorialNextBtn = document.getElementById('tutorial-next-btn');
+        const tutorialFinishBtn = document.getElementById('tutorial-finish-btn');
+        const tutorialCloseBtn = document.getElementById('tutorial-close-btn');
+        let currentTutorialSlide = 0;
+
         document.addEventListener('DOMContentLoaded', () => {
             mainApp();
         });
         
         async function mainApp() { 
             try {
+                // (NOVO) Lógica para checar se o firebaseConfig foi preenchido
+                if (firebaseConfig.apiKey === "SEU_API_KEY_AQUI") {
+                    console.error("Erro: firebaseConfig não foi preenchido.");
+                    document.body.innerHTML = `
+                        <div class="p-8 text-center text-white">
+                            <h1 class="text-2xl font-bold text-red-500 mb-4">Erro de Configuração</h1>
+                            <p>O objeto \`firebaseConfig\` no arquivo \`index.html\` (linha 1021) não foi preenchido.</p>
+                            <p>Por favor, siga o \`GUIA_PRODUCAO.md\` para criar seu projeto no Firebase e colar suas chaves de configuração.</p>
+                        </div>
+                    `;
+                    return;
+                }
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -717,6 +812,11 @@
                 console.error("Erro ao inicializar o Firebase:", e);
                 document.body.innerHTML = "<h1>Erro na configuração do Firebase. Verifique o console.</h1>";
                 return;
+            }
+
+            // (NOVO) Mostrar tutorial se for a primeira visita
+            if (!localStorage.getItem('hasSeenTutorial')) {
+                showTutorial();
             }
 
             onAuthStateChanged(auth, async (user) => {
@@ -755,6 +855,7 @@
             const companiesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'companies');
             const arrivalsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'arrivals');
             const adminUsersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'admin_users');
+            // (MODIFICADO) Nova coleção para checagem de duplicata
             const activeCpfsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'active_cpfs');
 
 
@@ -1039,6 +1140,7 @@
                 registerEntryBtn.textContent = "Registrando...";
 
                 try {
+                    // (MODIFICADO) Nova lógica de verificação
                     const cpfDocRef = doc(activeCpfsCollection, validation.data.cpf);
                     const cpfDocSnap = await getDoc(cpfDocRef);
 
@@ -1067,7 +1169,8 @@
                     };
 
                     const docRef = await addDoc(arrivalsCollection, docData);
-                    await setDoc(cpfDocRef, { uid: userId });
+                    // (MODIFICADO) Adiciona o CPF à coleção de controle
+                    await setDoc(cpfDocRef, { uid: userId, arrivalId: docRef.id });
 
                     currentActiveSessionId = docRef.id;
                     localStorage.setItem('activeSessionId', docRef.id);
@@ -1106,6 +1209,7 @@
                         long_saida: coords.longitude
                     });
                     
+                    // (MODIFICADO) Remove o CPF da coleção de controle
                     await deleteDoc(doc(activeCpfsCollection, currentActiveSessionCpf));
 
                     showUserNotification('success', 'Saída Registrada!', 'Sua saída foi registrada com sucesso.');
@@ -1517,6 +1621,8 @@
                     adminCancelEditBtn.classList.add('hidden');
                     adminFormUsername.disabled = false;
                     adminFormPassword.disabled = false;
+                    adminFormPassword.required = true;
+                    adminFormPassword.placeholder = "Mínimo 6 caracteres";
                 }
 
                 onSnapshot(query(adminUsersCollection), (snapshot) => {
@@ -1559,8 +1665,10 @@
                                 adminDisplayName.value = adminData.displayName;
                                 adminFormUsername.value = adminData.username || "Email (Ver no Console)";
                                 adminFormUsername.disabled = true;
-                                adminFormPassword.value = "********";
+                                adminFormPassword.value = "";
                                 adminFormPassword.disabled = true;
+                                adminFormPassword.required = false;
+                                adminFormPassword.placeholder = "Senha (não pode ser alterada aqui)";
                                 adminFormRole.value = adminData.role;
                             }
                         });
@@ -1575,7 +1683,7 @@
                                 window.alert("Você não pode excluir a si mesmo.");
                                 return;
                             }
-                            if (window.confirm("Tem certeza que deseja excluir este admin?")) {
+                            if (window.confirm("Tem certeza que deseja excluir este admin? (Isso não exclui o login, apenas as permissões).")) {
                                 await deleteDoc(doc(adminUsersCollection, idToDelete));
                             }
                         });
@@ -2008,6 +2116,10 @@
                     modalStatus.className = "text-center mt-3 font-medium text-red-500";
                     return;
                 }
+
+                // (MODIFICADO) Lógica para atualizar a coleção active_cpfs
+                const arrivalDoc = allArrivals.find(a => a.id === id);
+                const cpf = arrivalDoc.cpf;
                 
                 try {
                     await updateDoc(doc(arrivalsCollection, id), {
@@ -2015,6 +2127,14 @@
                         timestamp_saida: newSaida,
                         status: newSaida ? 'finalizado' : 'no_local' 
                     });
+
+                    // (NOVO) Atualiza a coleção de controle
+                    const cpfDocRef = doc(activeCpfsCollection, cpf);
+                    if (newSaida) {
+                        await deleteDoc(cpfDocRef); // Finalizado, remove
+                    } else {
+                        await setDoc(cpfDocRef, { uid: arrivalDoc.uid, arrivalId: id }); // Ativo, adiciona/garante
+                    }
                     
                     modalStatus.textContent = "Registro atualizado com sucesso!";
                     modalStatus.className = "text-center mt-3 font-medium text-green-500";
@@ -2031,12 +2151,17 @@
                 modalStatus.textContent = "Forçando saída...";
                 modalStatus.className = "text-center mt-3 font-medium text-blue-400";
                 const id = modalArrivalId.value;
+                const arrivalDoc = allArrivals.find(a => a.id === id);
+                const cpf = arrivalDoc.cpf;
                 
                 try {
                     await updateDoc(doc(arrivalsCollection, id), {
                         timestamp_saida: serverTimestamp(),
                         status: 'finalizado'
                     });
+
+                    // (NOVO) Atualiza a coleção de controle
+                    await deleteDoc(doc(activeCpfsCollection, cpf));
                     
                     modalStatus.textContent = "Saída registrada!";
                     modalStatus.className = "text-center mt-3 font-medium text-green-500";
@@ -2053,6 +2178,8 @@
                 modalStatus.textContent = "Reabrindo...";
                 modalStatus.className = "text-center mt-3 font-medium text-blue-400";
                 const id = modalArrivalId.value;
+                const arrivalDoc = allArrivals.find(a => a.id === id);
+                const cpf = arrivalDoc.cpf;
                 
                 try {
                     await updateDoc(doc(arrivalsCollection, id), {
@@ -2060,6 +2187,9 @@
                         status: 'no_local'
                     });
                     
+                    // (NOVO) Atualiza a coleção de controle
+                    await setDoc(doc(activeCpfsCollection, cpf), { uid: arrivalDoc.uid, arrivalId: id });
+
                     modalStatus.textContent = "Registro reaberto!";
                     modalStatus.className = "text-center mt-3 font-medium text-green-500";
                     setTimeout(hideModal, 2000);
@@ -2186,10 +2316,63 @@
             userDriverPlateTracao.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
             userDriverPlateReboque.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
         
+            // (NOVO) Lógica de controle do Tutorial
+            function showTutorial() {
+                tutorialModal.classList.remove('hidden');
+                setTimeout(() => {
+                    tutorialModalContent.classList.remove('scale-95', 'opacity-0');
+                    tutorialModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+
+            function hideTutorial() {
+                tutorialModalContent.classList.add('scale-95', 'opacity-0');
+                tutorialModalContent.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    tutorialModal.classList.add('hidden');
+                }, 300);
+            }
+
+            function updateTutorialSlide(index) {
+                tutorialSlides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+                tutorialDots.forEach((dot, i) => {
+                    dot.classList.toggle('bg-primary', i === index);
+                    dot.classList.toggle('bg-gray-600', i !== index);
+                });
+
+                tutorialPrevBtn.disabled = (index === 0);
+                tutorialNextBtn.classList.toggle('hidden', index === tutorialSlides.length - 1);
+                tutorialFinishBtn.classList.toggle('hidden', index !== tutorialSlides.length - 1);
+                currentTutorialSlide = index;
+            }
+
+            tutorialPrevBtn.addEventListener('click', () => {
+                if (currentTutorialSlide > 0) {
+                    updateTutorialSlide(currentTutorialSlide - 1);
+                }
+            });
+
+            tutorialNextBtn.addEventListener('click', () => {
+                if (currentTutorialSlide < tutorialSlides.length - 1) {
+                    updateTutorialSlide(currentTutorialSlide + 1);
+                }
+            });
+
+            tutorialFinishBtn.addEventListener('click', () => {
+                localStorage.setItem('hasSeenTutorial', 'true');
+                hideTutorial();
+            });
+
+            tutorialCloseBtn.addEventListener('click', () => {
+                localStorage.setItem('hasSeenTutorial', 'true');
+                hideTutorial();
+            });
+
+            updateTutorialSlide(0); // Inicia no primeiro slide
         } 
     </script>
 
 </body>
 </html>
-
-
