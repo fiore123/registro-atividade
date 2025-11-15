@@ -18,7 +18,6 @@
         
         body {
             font-family: 'Poppins', sans-serif;
-            /* (Novo) Cor da barra de rolagem (Firefox) */
             scrollbar-width: thin;
             scrollbar-color: var(--color-primary) #1f2937;
         }
@@ -66,7 +65,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* Tooltip simples para observação */
         .tooltip {
             position: relative;
             display: inline-block;
@@ -89,28 +87,27 @@
             border: 1px solid #374151;
             font-size: 0.75rem;
             line-height: 1.25;
-            white-space: pre-wrap; /* Mantém as quebras de linha */
+            white-space: pre-wrap;
         }
         .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
         }
 
-        /* (Novo) Personalização da barra de rolagem (WebKit) */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #1f2937; /* bg-gray-800 */
+            background: #1f2937;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--color-primary); /* Vermelho */
+            background: var(--color-primary);
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-primary-dark); /* Vermelho mais escuro */
+            background: var(--color-primary-dark);
         }
     </style>
 </head>
@@ -219,7 +216,6 @@
                     <h2 class="text-2xl font-semibold text-center text-gray-100 mb-6">Login do Admin</h2>
                     <form id="admin-login-form" class="space-y-4">
                          <div>
-                            <!-- (MODIFICADO) De volta para "Usuário" -->
                             <label for="admin-username" class="block text-sm font-medium text-gray-300">Usuário</label>
                             <input type="text" id="admin-username" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
                         </div>
@@ -370,7 +366,6 @@
                                     <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
                                         <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Perfis Cadastrados</h3>
                                         <div id="profiles-list" class="space-y-3 max-h-96 overflow-y-auto">
-                                            <!-- (Novo) Spinner será injetado aqui -->
                                         </div>
                                     </div>
                                 </div>
@@ -401,7 +396,6 @@
                                     <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
                                         <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Empresas Cadastradas</h3>
                                         <div id="companies-list" class="space-y-3 max-h-96 overflow-y-auto">
-                                            <!-- (Novo) Spinner será injetado aqui -->
                                         </div>
                                     </div>
                                 </div>
@@ -461,13 +455,11 @@
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Saída</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Permanência</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Localização</th>
-                                                <!-- (Novo) Cabeçalho da coluna Obs. -->
                                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Obs.</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ações</th>
                                             </tr>
                                         </thead>
                                         <tbody id="arrivals-log" class="bg-gray-800 divide-y divide-gray-700">
-                                            <!-- Spinner/Tabela será injetada aqui -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -526,7 +518,6 @@
                                     <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
                                         <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Admins Cadastrados</h3>
                                         <div id="admin-users-list" class="space-y-3 max-h-96 overflow-y-auto">
-                                            <!-- Spinner será injetado aqui -->
                                         </div>
                                     </div>
                                 </div>
@@ -597,7 +588,6 @@
         </div>
     </div>
 
-    <!-- (Novo) Modal de Observação -->
     <div id="observation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
         <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
@@ -631,10 +621,9 @@
         import { 
             getAuth, 
             signInAnonymously, 
-            signInWithCustomToken, 
             onAuthStateChanged,
-            signInWithEmailAndPassword, // (NOVO) Importa o login por email
-            signOut // (NOVO) Importa o logout
+            signInWithEmailAndPassword,
+            signOut
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -655,8 +644,6 @@
             Timestamp
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // (NOVO) PASSO FINAL: COLE SEU OBJETO DE CONFIGURAÇÃO DO FIREBASE AQUI
-        // Substitua este objeto de exemplo pelo que você copiou do console do Firebase (Passo 4 do guia)
         const firebaseConfig = {
         apiKey: "AIzaSyAPWUc6PcGw87ObV9UITqVjyHBB7iQc_VQ",
         authDomain: "registro-atividade.firebaseapp.com",
@@ -667,23 +654,13 @@
         measurementId: "G-JHLSFZDJKB"
         };
         
-        // (REMOVIDO) Não precisamos mais das variáveis que eram injetadas
-        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        
-        // (MODIFICADO) Usamos o "projectId" do SEU config como o ID do app
         const appId = firebaseConfig.projectId || 'default-app-id';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
 
         const trashIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12.502 0c-.342.052-.682.107-1.022.166m3.74 0a-.565.565 0 0 1-.565-.565V4.25a.565.565 0 0 1 .565-.565h3a.565.565 0 0 1 .565.565v.985a.565.565 0 0 1-.565.565h-3Zm5.068 0a.565.565 0 0 1-.565-.565V4.25a.565.565 0 0 1 .565-.565h3a.565.565 0 0 1 .565.565v.985a.565.565 0 0 1-.565.565h-3Z" /></svg>`;
         const editIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>`;
         const adjustIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0M3.75 18H7.5m3-6h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0M3.75 12H7.5" /></svg>`;
-        // (Novo) Ícones de Observação
         const obsAddIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
         const obsNoteIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`;
-
-
         const successIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
         const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
         
@@ -709,6 +686,7 @@
         let app, auth, db;
         let userId = null; 
         let currentActiveSessionId = null; 
+        let currentActiveSessionCpf = null; 
         
         let allProfiles = [];
         let allCompanies = [];
@@ -746,30 +724,23 @@
                     userId = user.uid;
                     console.log("Usuário autenticado:", userId);
 
-                    // (MODIFICADO) Verifica se o usuário logado é anônimo ou um admin real
                     if (user.isAnonymous) {
                         console.log("Sessão anônima (Motorista)");
-                        // Se for anônimo, só checa a sessão do motorista
                         await checkActiveSession(); 
-                        // Garante que o painel admin não esteja visível
                         if (adminMainContent) adminMainContent.classList.add('hidden');
                         if (adminLoginSection) adminLoginSection.classList.remove('hidden');
 
                     } else {
-                        // Se NÃO for anônimo, é um admin que acabou de logar
                         console.log("Sessão de Admin (Email)");
-                        // Busca o perfil de admin no Firestore
                         await loadAdminProfile(user.uid);
                     }
                     
-                    // Funções que rodam para AMBOS (motorista e admin)
                     loadPublicProfiles();
                     loadPublicCompanies();
 
                 } else {
                     console.log("Nenhum usuário. Tentando login anônimo...");
                     try {
-                        // (MODIFICADO) O login inicial é sempre anônimo
                         await signInAnonymously(auth);
                     } catch (error) {
                         console.error("Erro ao tentar fazer login anônimo:", error);
@@ -784,6 +755,7 @@
             const companiesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'companies');
             const arrivalsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'arrivals');
             const adminUsersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'admin_users');
+            const activeCpfsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'active_cpfs');
 
 
             const userView = document.getElementById('user-view');
@@ -996,7 +968,8 @@
                 });
             }
 
-            function showActiveSession(name, entryTimestamp) {
+            function showActiveSession(name, entryTimestamp, cpf) {
+                currentActiveSessionCpf = cpf;
                 sessionWelcomeName.textContent = name;
                 registerView.classList.add('hidden');
                 activeSessionView.classList.remove('hidden');
@@ -1025,6 +998,7 @@
 
             function showRegisterForm() {
                 currentActiveSessionId = null;
+                currentActiveSessionCpf = null;
                 localStorage.removeItem('activeSessionId');
                 registerView.classList.remove('hidden');
                 activeSessionView.classList.add('hidden');
@@ -1042,7 +1016,7 @@
                         
                         if (docSnap.exists() && docSnap.data().status === 'no_local') {
                             currentActiveSessionId = sessionId;
-                            showActiveSession(docSnap.data().name, docSnap.data().timestamp_entrada);
+                            showActiveSession(docSnap.data().name, docSnap.data().timestamp_entrada, docSnap.data().cpf);
                         } else {
                             localStorage.removeItem('activeSessionId');
                         }
@@ -1065,10 +1039,10 @@
                 registerEntryBtn.textContent = "Registrando...";
 
                 try {
-                    const q = query(arrivalsCollection, where("cpf", "==", validation.data.cpf), where("status", "==", "no_local"));
-                    const existingEntry = await getDocs(q);
+                    const cpfDocRef = doc(activeCpfsCollection, validation.data.cpf);
+                    const cpfDocSnap = await getDoc(cpfDocRef);
 
-                    if (!existingEntry.empty) {
+                    if (cpfDocSnap.exists()) {
                         showUserNotification('error', 'Entrada Duplicada', 'Já existe uma entrada ativa para este CPF.');
                         registerEntryBtn.disabled = false;
                         registerEntryBtn.innerHTML = `<span>Registrar ENTRADA</span>`; 
@@ -1089,17 +1063,18 @@
                         lat_saida: null,
                         long_saida: null,
                         observation: "",
-                        uid: userId // (NOVO) Salva o UID do motorista anônimo
+                        uid: userId
                     };
 
                     const docRef = await addDoc(arrivalsCollection, docData);
+                    await setDoc(cpfDocRef, { uid: userId });
 
                     currentActiveSessionId = docRef.id;
                     localStorage.setItem('activeSessionId', docRef.id);
                     
                     showUserNotification('success', 'Entrada Registrada!', 'Sua entrada foi registrada com sucesso.');
                     
-                    showActiveSession(validation.data.name, entryTime);
+                    showActiveSession(validation.data.name, entryTime, validation.data.cpf);
 
                 } catch (error) {
                     console.error("Erro ao registrar entrada:", error);
@@ -1112,7 +1087,7 @@
             
             sessionExitBtn.addEventListener('click', async () => {
                 const sessionId = localStorage.getItem('activeSessionId');
-                if (!sessionId) {
+                if (!sessionId || !currentActiveSessionCpf) {
                     showUserNotification('error', 'Erro de Sessão', 'Sessão não encontrada. Atualize a página.');
                     return;
                 }
@@ -1131,6 +1106,8 @@
                         long_saida: coords.longitude
                     });
                     
+                    await deleteDoc(doc(activeCpfsCollection, currentActiveSessionCpf));
+
                     showUserNotification('success', 'Saída Registrada!', 'Sua saída foi registrada com sucesso.');
                     
                     showRegisterForm();
@@ -1201,7 +1178,6 @@
             const modalReopenBtn = document.getElementById('modal-reopen-btn');
             const editArrivalForm = document.getElementById('edit-arrival-form');
 
-            // (Novo) Seletores do Modal de Observação
             const observationModal = document.getElementById('observation-modal');
             const modalObsCloseBtn = document.getElementById('modal-obs-close-btn');
             const observationForm = document.getElementById('observation-form');
@@ -1307,21 +1283,6 @@
             tabArrivals.addEventListener('click', () => switchTab(tabArrivals));
             tabManageAdmins.addEventListener('click', () => switchTab(tabManageAdmins));
 
-            async function checkAndCreateMasterAdmin() {
-                if (!db) return;
-                // (MODIFICADO) Não criamos mais admins, apenas checamos
-                // A criação agora é 100% manual no console do Firebase (veja GUIA_PRODUCAO.md)
-                const q = query(adminUsersCollection, where("role", "==", "master"));
-                const snapshot = await getDocs(q);
-                if (snapshot.empty) {
-                    console.warn("Nenhum Master Admin encontrado no Firestore.");
-                    console.warn("Certifique-se de seguir o GUIA_PRODUCAO.md para criar os admins manualmente.");
-                } else {
-                    console.log("Master Admin encontrado no Firestore. Pronto para login.");
-                }
-            }
-            
-            // (MODIFICADO) Função que busca o perfil do admin APÓS o login
             async function loadAdminProfile(adminUid) {
                 if (!adminUid) return;
                 try {
@@ -1329,7 +1290,6 @@
                     const docSnap = await getDoc(docRef);
 
                     if (docSnap.exists() && docSnap.data().role) {
-                        // SUCESSO NO LOGIN
                         loggedInAdminProfile = { id: docSnap.id, ...docSnap.data() };
                         
                         adminLoginSection.classList.add('hidden');
@@ -1343,54 +1303,40 @@
                             loadAdminManagement();
                         }
                         
-                        loadAdminData(); // Carrega todos os dados do admin (perfis, empresas, histórico)
+                        loadAdminData();
                         switchTab(tabDashboard); 
                         
                         if (permanenceTimer) clearInterval(permanenceTimer);
                         permanenceTimer = setInterval(renderArrivals, 60000); 
 
                     } else {
-                        // Logou, mas não está na nossa lista de admins
                         adminLoginStatus.textContent = "Autenticado, mas sem permissão de admin.";
                         adminLoginStatus.className = "text-center mt-4 font-medium text-red-500";
-                        await signOut(auth); // Desloga o usuário
+                        await signOut(auth);
                     }
                 } catch (error) {
                     console.error("Erro ao buscar perfil de admin:", error);
                     adminLoginStatus.textContent = "Erro ao buscar perfil. Tente novamente.";
                     adminLoginStatus.className = "text-center mt-4 font-medium text-red-500";
-                    await signOut(auth); // Desloga o usuário
+                    await signOut(auth);
                 }
             }
 
             adminLoginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                // (MODIFICADO) Pega o nome de usuário (ex: alisson.master)
                 const username = document.getElementById('admin-username').value;
                 const password = document.getElementById('admin-password').value;
                 adminLoginStatus.textContent = "Verificando...";
                 adminLoginStatus.className = "text-center mt-4 font-medium text-blue-400";
                 
-                // (NOVO) Lógica para adicionar o sufixo
-                // Se o usuário digitar o email completo, usa o email.
-                // Se digitar só o nome de usuário, adiciona o sufixo.
                 const domainSuffix = "@meuapp.com"; 
                 const email = username.includes('@') ? username : `${username}${domainSuffix}`;
                 
                 try {
-                    // (MODIFICADO) Chama o login com o email formatado
                     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    
-                    // O login foi bem-sucedido.
-                    // O `onAuthStateChanged` vai disparar automaticamente
-                    // e chamar a função `loadAdminProfile` com o UID do usuário.
-                    // Não precisamos fazer mais nada aqui.
-                    
                 } catch (error) {
-                    // Erros de login (senha errada, usuário não existe)
                     console.error("Erro ao fazer login:", error.code);
                     if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                        // (MODIFICADO) Mensagem de erro mais genérica
                         adminLoginStatus.textContent = "Usuário ou senha incorreta.";
                     } else {
                         adminLoginStatus.textContent = "Erro ao conectar. Tente novamente.";
@@ -1400,10 +1346,8 @@
             });
 
             adminLogoutBtn.addEventListener('click', async () => {
-                // (MODIFICADO) Chama o logout do Firebase
                 await signOut(auth);
                 
-                // Limpa o estado do app
                 loggedInAdminProfile = null;
                 adminMainContent.classList.add('hidden');
                 adminLoginSection.classList.remove('hidden');
@@ -1413,19 +1357,11 @@
                 switchTab(tabDashboard); 
                 tabManageAdmins.classList.add('hidden');
                 if (permanenceTimer) clearInterval(permanenceTimer);
-                
-                // O `onAuthStateChanged` vai disparar e logar o usuário
-                // como anônimo automaticamente.
             });
-
 
             
             function loadAdminData() {
                 if (!db) return; 
-                
-                // (MODIFICADO) Não precisamos mais recarregar os dados públicos,
-                // eles já foram carregados no onAuthStateChanged.
-                // Apenas carregamos os dados do admin.
 
                 onSnapshot(query(profilesCollection), (snapshot) => {
                     if (!profilesList) return;
@@ -1449,7 +1385,6 @@
                         button.addEventListener('click', async (e) => {
                             const btn = e.target.closest('button');
                             if (!btn) return;
-                            // (MODIFICADO) Verificação de segurança no cliente
                             if (loggedInAdminProfile?.role !== 'admin' && loggedInAdminProfile?.role !== 'master') {
                                 window.alert("Você não tem permissão para excluir.");
                                 return;
@@ -1483,7 +1418,6 @@
                         button.addEventListener('click', async (e) => {
                             const btn = e.target.closest('button');
                             if (!btn) return;
-                            // (MODIFICADO) Verificação de segurança no cliente
                             if (loggedInAdminProfile?.role !== 'admin' && loggedInAdminProfile?.role !== 'master') {
                                 window.alert("Você não tem permissão para excluir.");
                                 return;
@@ -1581,8 +1515,6 @@
                     adminFormTitle.textContent = "Adicionar Novo Admin";
                     adminSubmitBtn.textContent = "Adicionar Admin";
                     adminCancelEditBtn.classList.add('hidden');
-                    
-                    // (NOVO) Re-habilita os campos de login
                     adminFormUsername.disabled = false;
                     adminFormPassword.disabled = false;
                 }
@@ -1625,9 +1557,7 @@
                                 adminCancelEditBtn.classList.remove('hidden');
                                 adminEditId.value = idToEdit;
                                 adminDisplayName.value = adminData.displayName;
-                                // (MODIFICADO) Não editamos mais username/password aqui
-                                // Isso agora é feito no Console do Firebase (Authentication)
-                                adminFormUsername.value = doc.data().username || "Email (Ver no Console)";
+                                adminFormUsername.value = adminData.username || "Email (Ver no Console)";
                                 adminFormUsername.disabled = true;
                                 adminFormPassword.value = "********";
                                 adminFormPassword.disabled = true;
@@ -1658,27 +1588,17 @@
                     const newAdminData = {
                         displayName: adminDisplayName.value,
                         username: adminFormUsername.value,
-                        // (REMOVIDO) Não salvamos mais senha
-                        // password: adminFormPassword.value,
                         role: adminFormRole.value
                     };
                     
-                    // (MODIFICADO) Lógica de ADIÇÃO foi removida.
-                    // Admins agora SÓ são criados no Console do Firebase.
-                    // Este formulário agora é SÓ para EDITAR.
                     if (id) {
                         adminCrudStatus.textContent = "Salvando...";
                         adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
                         
-                        // (CORREÇÃO) Adicionando o TRY/CATCH que faltava
                         try {
-                            // Atualiza apenas os campos que gerenciamos
                             await updateDoc(doc(adminUsersCollection, id), {
                                 displayName: newAdminData.displayName,
                                 role: newAdminData.role
-                                // (NOVO) Atualiza o username também
-                                // username: newAdminData.username 
-                                // (Nota: username não deve ser editável, pois está atrelado ao Auth)
                             });
                             
                             adminCrudStatus.textContent = "Admin atualizado!";
@@ -1692,23 +1612,9 @@
                         }
                         
                     } else {
-                        // (CORREÇÃO) Adicionando o TRY/CATCH que faltava
-                        // (NOTA) Esta lógica é da versão antiga que o usuário está executando.
-                        adminCrudStatus.textContent = "Salvando...";
-                        adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
-                        try {
-                            // (REMOVIDO) A lógica de criação de senha foi removida 
-                            // da versão segura, esta parte não deve ser executada
-                            // se o 'id' não existir.
-                            adminCrudStatus.textContent = "A adição de novos admins deve ser feita no Console do Firebase (Authentication).";
-                            adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
-                            return;
-
-                        } catch (error) {
-                            console.error("Erro ao salvar admin:", error);
-                            adminCrudStatus.textContent = "Erro ao salvar.";
-                            adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
-                        }
+                        adminCrudStatus.textContent = "A adição de novos admins deve ser feita no Console do Firebase (Authentication).";
+                        adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
+                        return;
                     }
 
                 });
@@ -1832,7 +1738,6 @@
                         locationHtml += ` / <a href="https://www.google.com/maps?q=${arrival.lat_saida},${arrival.long_saida}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">Ver Saída</a>`;
                     }
 
-                    // (Novo) Lógica da Observação
                     let obsHtml = '';
                     const obsText = (arrival.observation || "").trim();
                     if (obsText) {
@@ -1914,7 +1819,7 @@
                 if (finalizadosHoje.length > 0) {
                     const totalMinutos = finalizadosHoje.reduce((sum, a) => {
                         const permanencia = calculatePermanencia(a.timestamp_entrada, a.timestamp_saida);
-                        return sum + (permanencia.diffMs / (1000 * 60)); // Soma em minutos
+                        return sum + (permanencia.diffMs / (1000 * 60));
                     }, 0);
                     const tempoMedioMin = totalMinutos / finalizadosHoje.length;
                     kpiTempoMedio.textContent = formatarTempo(tempoMedioMin);
@@ -1937,7 +1842,7 @@
                     data: Object.values(profileCounts)
                 };
                 renderPieChart(profileData);
-                profilesPieLoading.innerHTML = ""; // Remove spinner
+                profilesPieLoading.innerHTML = "";
 
                 const companyCounts = last7DaysArrivals.reduce((acc, arrival) => {
                     const company = arrival.company || "N/A";
@@ -1955,7 +1860,7 @@
                     data: top5Companies.map(entry => entry[1])
                 };
                 renderBarChart(companyData);
-                companiesBarLoading.innerHTML = ""; // Remove spinner
+                companiesBarLoading.innerHTML = "";
             }
 
             function renderPieChart(profileData) {
@@ -2166,7 +2071,6 @@
                 }
             });
             
-            // (Novo) Funções do Modal de Observação
             function showObsModal() { observationModal.classList.remove('hidden'); }
             function hideObsModal() { 
                 observationModal.classList.add('hidden'); 
@@ -2226,7 +2130,7 @@
                     const statusText = arrival.status === 'no_local' ? 'No Local' : 'Finalizado';
                     const permanencia = calculatePermanencia(arrival.timestamp_entrada, arrival.timestamp_saida)
                                             .text.replace(" (em andamento)", ""); 
-                    const observationText = (arrival.observation || "").replace(/"/g, '""'); // Escapa aspas
+                    const observationText = (arrival.observation || "").replace(/"/g, '""');
                     
                     const row = [
                         `"${statusText}"`,
