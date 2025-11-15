@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Motoristas (Ponto Digital)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #EF4444; 
+            --color-primary-dark: #DC2626; 
+            --color-secondary: #22C55E; 
+            --color-secondary-dark: #16A34A; 
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            /* (Novo) Cor da barra de rolagem (Firefox) */
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-primary) #1f2937;
+        }
+
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-primary-dark { background-color: var(--color-primary-dark); }
+        .text-primary { color: var(--color-primary); }
+        .border-primary { border-color: var(--color-primary); }
+
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-secondary-dark { background-color: var(--color-secondary-dark); }
+        .text-secondary { color: var(--color-secondary); }
+        
+        .focus\:ring-primary:focus {
+            --tw-ring-color: var(--color-primary);
+            --tw-ring-opacity: 1;
+            box-shadow: 0 0 0 2px var(--tw-ring-color);
+        }
+        .ring-primary { --tw-ring-color: #EF4444; }
+
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-right: 2.5rem;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            display: none;
+            -webkit-appearance: none;
+        }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+        }
+
+        .spinner {
+            border-top-color: var(--color-primary);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Tooltip simples para observação */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #111827;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%; 
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid #374151;
+            font-size: 0.75rem;
+            line-height: 1.25;
+            white-space: pre-wrap; /* Mantém as quebras de linha */
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* (Novo) Personalização da barra de rolagem (WebKit) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary); /* Vermelho */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary-dark); /* Vermelho mais escuro */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-center text-gray-100 mb-4 flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <span>Sistema de Registro de Atividade</span>
+            </h1>
+            <div class="flex justify-center bg-gray-800 rounded-lg p-1 max-w-sm mx-auto">
+                <button id="view-toggle-user" class="w-1/2 py-2 px-4 rounded-md text-sm font-medium bg-primary text-white transition-colors duration-300 flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 17.625 22.5h-11.25a1.875 1.875 0 0 1-1.875-2.382Z" />
+                    </svg>
+                    <span>Motorista</span>
+                </button>
+                <button id="view-toggle-admin" class="w-1/2 py-2 px-4 rounded-md text-sm font-medium text-gray-400 bg-gray-800 hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.959 11.959 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                    </svg>
+                    <span>Admin</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="user-view" class="">
+            <div id="register-view" class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 border border-gray-700">
+                <h2 class="text-2xl font-semibold text-center text-gray-100 mb-6">Registro de Atividade</h2>
+                
+                <form id="register-activity-form" class="space-y-4" onsubmit="return false;">
+                    <div>
+                        <label for="user-driver-name" class="block text-sm font-medium text-gray-300">Nome Completo</label>
+                        <input type="text" id="user-driver-name" required placeholder="Digite seu nome" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                    </div>
+                    <div>
+                        <label for="user-driver-cpf" class="block text-sm font-medium text-gray-300">CPF</label>
+                        <input type="text" id="user-driver-cpf" required placeholder="000.000.000-00" maxlength="14" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                    </div>
+                    
+                    <div>
+                        <label for="user-driver-company" class="block text-sm font-medium text-gray-300">Empresa</label>
+                        <select id="user-driver-company" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                            <option value="">Selecione uma empresa</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="user-driver-profile" class="block text-sm font-medium text-gray-300">Perfil do Veículo</label>
+                        <select id="user-driver-profile" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                            <option value="">Selecione um perfil</option>
+                        </select>
+                    </div>
+
+                    <div id="plate-field-single">
+                        <label for="user-driver-plate" class="block text-sm font-medium text-gray-300">Placa</label>
+                        <input type="text" id="user-driver-plate" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                    </div>
+                    
+                    <div id="plate-field-multi" class="hidden space-y-4">
+                        <div>
+                            <label for="user-driver-plate-tracao" class="block text-sm font-medium text-gray-300">Placa Tração (Cavalo)</label>
+                            <input type="text" id="user-driver-plate-tracao" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label for="user-driver-plate-reboque" class="block text-sm font-medium text-gray-300">Placa Reboque (Baú)</label>
+                            <input type="text" id="user-driver-plate-reboque" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="button" id="register-entry-btn" class="w-full bg-secondary text-white font-bold py-3 px-4 rounded-md hover:bg-secondary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
+                            <span>Registrar ENTRADA</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="active-session-view" class="hidden max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 border border-gray-700 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-secondary mx-auto mb-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <h2 class="text-2xl font-semibold text-center text-gray-100 mb-2">Entrada Registrada!</h2>
+                <p class="text-lg text-gray-300 mb-1">Olá, <span id="session-welcome-name" class="font-bold">...</span></p>
+                <p class="text-sm text-gray-400 mb-2">Sua sessão está ativa.</p>
+                <p id="session-active-timer" class="text-lg text-gray-300 mb-6 font-medium">Calculando...</p>
+                
+                <div class="pt-4">
+                    <button type="button" id="session-exit-btn" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
+                        <span>Registrar SAÍDA</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <main id="admin-view" class="hidden">
+
+            <section id="admin-login-section">
+                <div class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-8 border border-gray-700">
+                    <h2 class="text-2xl font-semibold text-center text-gray-100 mb-6">Login do Admin</h2>
+                    <form id="admin-login-form" class="space-y-4">
+                         <div>
+                            <!-- (MODIFICADO) De volta para "Usuário" -->
+                            <label for="admin-username" class="block text-sm font-medium text-gray-300">Usuário</label>
+                            <input type="text" id="admin-username" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label for="admin-password" class="block text-sm font-medium text-gray-300">Senha</label>
+                            <input type="password" id="admin-password" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">
+                            Entrar
+                        </button>
+                    </form>
+                    <p id="admin-login-status" class="text-center mt-4 font-medium"></p>
+                </div>
+            </section>
+
+            <section id="admin-main-content" class="hidden">
+                <div class="mb-6">
+                    <div class="flex justify-between items-center border-b border-gray-700 mb-4">
+                        <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                            <button id="tab-dashboard" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-primary text-primary flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+                                </svg>
+                                <span>Visão Geral</span>
+                            </button>
+                            <button id="tab-arrivals" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                </svg>
+                                <span>Histórico</span>
+                            </button>
+                            <button id="tab-profiles" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.737.517l.636-.212c1.421-.47 2.121-2.121 1.48-3.481L13.172 8.71c-.597-.597-1.403-.934-2.235-.934H9.568Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+                                </svg>
+                                <span>Perfis</span>
+                            </button>
+                            <button id="tab-companies" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 11.25h6.75M9 15.75h6.75M9 20.25h6.75" />
+                                </svg>
+                                <span>Empresas</span>
+                            </button>
+                             <button id="tab-manage-admins" class="hidden whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.822-2.071-1.921-2.321a52.532 52.532 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m7.5-3.321c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 15.807v-.003c0-1.113-.822-2.071-1.921-2.321a52.522 52.522 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0M12.75 10.125c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M12.75 10.125v-.003c0-1.113-.822-2.071-1.921-2.321a52.548 52.548 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0" />
+                                </svg>
+                                <span>Admins</span>
+                            </button>
+                        </nav>
+                        
+                        <div class="flex items-center space-x-4">
+                            <span id="admin-welcome-message" class="text-sm font-medium text-gray-300">Carregando...</span>
+                            <button id="admin-logout-btn" class="hidden text-sm font-medium text-red-500 hover:text-red-700 underline flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                                </svg>
+                                <span>Sair</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div id="tab-content-dashboard">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0 bg-secondary rounded-md p-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0-3.071-2.317l-1.07-1.07a9.094 9.094 0 0 0-2.317-3.071l-1.07-1.07A9.094 9.094 0 0 0 6 12a9 9 0 0 0-3 6.72M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-400">Motoristas Ativos</p>
+                                            <p id="kpi-ativos" class="text-3xl font-bold text-gray-100">--</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0 bg-primary rounded-md p-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-400">Entradas Hoje</p>
+                                            <p id="kpi-entradas-hoje" class="text-3xl font-bold text-gray-100">--</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-400">Tempo Médio (Hoje)</p>
+                                            <p id="kpi-tempo-medio" class="text-3xl font-bold text-gray-100">--</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Perfis (Últimos 7 dias)</h3>
+                                    <div class="h-64 md:h-80 relative">
+                                        <canvas id="profilesPieChart"></canvas>
+                                        <div id="profilesPieChart-loading" class="absolute inset-0 flex items-center justify-center"></div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Top 5 Empresas (Últimos 7 dias)</h3>
+                                    <div class="h-64 md:h-80 relative">
+                                        <canvas id="companiesBarChart"></canvas>
+                                        <div id="companiesBarChart-loading" class="absolute inset-0 flex items-center justify-center"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-content-profiles" class="hidden">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-1">
+                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Adicionar Novo Perfil</h3>
+                                        <form id="add-profile-form" class="space-y-4">
+                                            <div>
+                                                <label for="profile-name" class="block text-sm font-medium text-gray-300">Nome do Perfil</label>
+                                                <input type="text" id="profile-name" placeholder="Ex: Carreta, VUC, Toco" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                            </div>
+                                            <button type="submit" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                </svg>
+                                                <span>Adicionar Perfil</span>
+                                            </button>
+                                        </form>
+                                        <p id="admin-profile-status" class="text-center mt-3 font-medium"></p>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-2">
+                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Perfis Cadastrados</h3>
+                                        <div id="profiles-list" class="space-y-3 max-h-96 overflow-y-auto">
+                                            <!-- (Novo) Spinner será injetado aqui -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-content-companies" class="hidden">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-1">
+                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Adicionar Nova Empresa</h3>
+                                        <form id="add-company-form" class="space-y-4">
+                                            <div>
+                                                <label for="company-name" class="block text-sm font-medium text-gray-300">Nome da Empresa</label>
+                                                <input type="text" id="company-name" placeholder="Ex: Transportadora X" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                            </div>
+                                            <button type="submit" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                </svg>
+                                                <span>Adicionar Empresa</span>
+                                            </button>
+                                        </form>
+                                        <p id="admin-company-status" class="text-center mt-3 font-medium"></p>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-2">
+                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Empresas Cadastradas</h3>
+                                        <div id="companies-list" class="space-y-3 max-h-96 overflow-y-auto">
+                                            <!-- (Novo) Spinner será injetado aqui -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-content-arrivals" class="hidden">
+                            <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-100">Histórico de Atividades</h3>
+                                    <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                        <button id="clear-filters-btn" class="w-full sm:w-auto bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors duration-300 flex items-center justify-center space-x-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+                                            <span>Limpar Filtros</span>
+                                        </button>
+                                        <button id="export-excel-btn" class="w-full sm:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                            </svg>
+                                            <span>Exportar</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+                                    <input type="text" id="filter-name" placeholder="Filtrar por Nome" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                    <input type="text" id="filter-cpf" placeholder="Filtrar por CPF" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                    <input type="text" id="filter-plate" placeholder="Filtrar por Placa" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                    <input type="text" id="filter-company" placeholder="Filtrar por Empresa" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                    <input type="text" id="filter-profile" placeholder="Filtrar por Perfil" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                    <select id="filter-status" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                                        <option value="">Todos os Status</option>
+                                        <option value="no_local">No Local</option>
+                                        <option value="finalizado">Finalizado</option>
+                                    </select>
+                                    
+                                    <div class="lg:col-span-2">
+                                        <label for="filter-date-start" class="block text-sm font-medium text-gray-300">Data Início (Entrada)</label>
+                                        <input type="date" id="filter-date-start" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white" style="color-scheme: dark;">
+                                    </div>
+                                    <div class="lg:col-span-2">
+                                        <label for="filter-date-end" class="block text-sm font-medium text-gray-300">Data Fim (Entrada)</label>
+                                        <input type="date" id="filter-date-end" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white" style="color-scheme: dark;">
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-700">
+                                        <thead class="bg-gray-700">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nome</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CPF</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Empresa</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Perfil</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Entrada</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Saída</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Permanência</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Localização</th>
+                                                <!-- (Novo) Cabeçalho da coluna Obs. -->
+                                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Obs.</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="arrivals-log" class="bg-gray-800 divide-y divide-gray-700">
+                                            <!-- Spinner/Tabela será injetada aqui -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="flex items-center justify-between py-3" id="pagination-controls">
+                                    <button id="prev-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                                        Anterior
+                                    </button>
+                                    <span id="page-info" class="text-sm text-gray-400">Página 1 de 1</span>
+                                    <button id="next-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        Próxima
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-content-manage-admins" class="hidden">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-1">
+                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                        <h3 id="admin-form-title" class="text-lg font-medium leading-6 text-gray-100 mb-4">Adicionar Novo Admin</h3>
+                                        <form id="add-admin-form" class="space-y-4">
+                                            <input type="hidden" id="admin-edit-id">
+                                            <div>
+                                                <label for="admin-display-name" class="block text-sm font-medium text-gray-300">Nome de Exibição</label>
+                                                <input type="text" id="admin-display-name" placeholder="Ex: Pamella Gomes" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                            </div>
+                                             <div>
+                                                <label for="admin-form-username" class="block text-sm font-medium text-gray-300">Usuário (login)</label>
+                                                <input type="text" id="admin-form-username" placeholder="Ex: pamella.gomes" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                            </div>
+                                             <div>
+                                                <label for="admin-form-password" class="block text-sm font-medium text-gray-300">Senha</label>
+                                                <input type="password" id="admin-form-password" required placeholder="Mínimo 6 caracteres" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                            </div>
+                                            <div>
+                                                <label for="admin-form-role" class="block text-sm font-medium text-gray-300">Tipo de Conta</label>
+                                                <select id="admin-form-role" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                                                    <option value="admin">Admin (Padrão)</option>
+                                                    <option value="master">Master (Gerencia Admins)</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <button id="admin-submit-btn" type="submit" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">
+                                                Adicionar Admin
+                                            </button>
+                                            <button id="admin-cancel-edit-btn" type="button" class="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors duration-300 hidden">
+                                                Cancelar Edição
+                                            </button>
+                                        </form>
+                                        <p id="admin-crud-status" class="text-center mt-3 font-medium"></p>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-2">
+                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Admins Cadastrados</h3>
+                                        <div id="admin-users-list" class="space-y-3 max-h-96 overflow-y-auto">
+                                            <!-- Spinner será injetado aqui -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <div id="user-notification-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300">
+        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0" id="user-notification-content">
+            <div id="modal-notification-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full">
+            </div>
+            <h3 id="modal-notification-title" class="text-2xl font-semibold leading-6 text-gray-100 mt-5"></h3>
+            <p id="modal-notification-message" class="text-base text-gray-300 mt-3"></p>
+        </div>
+    </div>
+
+    <div id="edit-arrival-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium leading-6 text-gray-100">Ajuste Manual de Registro</h3>
+                <button id="modal-close-btn" class="text-gray-400 hover:text-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="edit-arrival-form" class="space-y-4">
+                <input type="hidden" id="modal-arrival-id">
+                
+                <div>
+                    <p class="text-sm text-gray-400">Motorista</p>
+                    <p id="modal-info-name" class="font-medium text-gray-100"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400">CPF</p>
+                    <p id="modal-info-cpf" class="font-medium text-gray-100"></p>
+                </div>
+                
+                <div>
+                    <label for="modal-timestamp-entrada" class="block text-sm font-medium text-gray-300">Data/Hora Entrada</label>
+                    <input type="datetime-local" id="modal-timestamp-entrada" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400" style="color-scheme: dark;">
+                </div>
+                
+                <div>
+                    <label for="modal-timestamp-saida" class="block text-sm font-medium text-gray-300">Data/Hora Saída (deixe em branco se "No Local")</label>
+                    <input type="datetime-local" id="modal-timestamp-saida" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400" style="color-scheme: dark;">
+                </div>
+                
+                <p id="modal-status" class="text-center mt-3 font-medium"></p>
+
+                <div class="pt-4 space-y-3">
+                    <button type="submit" id="modal-save-btn" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">Salvar Alterações</button>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" id="modal-force-exit-btn" class="w-1/2 bg-yellow-600 text-white font-bold py-2 px-4 rounded-md hover:bg-yellow-700 transition-colors duration-300">Forçar Saída Agora</button>
+                        <button type="button" id="modal-reopen-btn" class="w-1/2 bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300">Reabrir Registro</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- (Novo) Modal de Observação -->
+    <div id="observation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium leading-6 text-gray-100">Adicionar/Editar Observação</h3>
+                <button id="modal-obs-close-btn" class="text-gray-400 hover:text-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="observation-form" class="space-y-4">
+                <input type="hidden" id="modal-obs-arrival-id">
+                <div>
+                    <label for="modal-observation-text" class="block text-sm font-medium text-gray-300">Observação</label>
+                    <textarea id="modal-observation-text" rows="4" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400"></textarea>
+                </div>
+                
+                <p id="modal-obs-status" class="text-center mt-3 font-medium"></p>
+
+                <div class="pt-4">
+                    <button type="submit" id="modal-obs-save-btn" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">Salvar Observação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged,
+            signInWithEmailAndPassword, // (NOVO) Importa o login por email
+            signOut // (NOVO) Importa o logout
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            addDoc, 
+            setDoc, 
+            updateDoc, 
+            deleteDoc, 
+            onSnapshot, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            serverTimestamp,
+            setLogLevel,
+            orderBy,
+            Timestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // (NOVO) PASSO FINAL: COLE SEU OBJETO DE CONFIGURAÇÃO DO FIREBASE AQUI
+        // Substitua este objeto de exemplo pelo que você copiou do console do Firebase (Passo 4 do guia)
+        const firebaseConfig = {
+        apiKey: "AIzaSyAPWUc6PcGw87ObV9UITqVjyHBB7iQc_VQ",
+        authDomain: "registro-atividade.firebaseapp.com",
+        projectId: "registro-atividade",
+        storageBucket: "registro-atividade.firebasestorage.app",
+        messagingSenderId: "975039192548",
+        appId: "1:975039192548:web:0e10594cbee1df8cabfbf1",
+        measurementId: "G-JHLSFZDJKB"
+        };
+        
+        // (REMOVIDO) Não precisamos mais das variáveis que eram injetadas
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        
+        // (MODIFICADO) Usamos o "projectId" do SEU config como o ID do app
+        const appId = firebaseConfig.projectId || 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+
+        const trashIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12.502 0c-.342.052-.682.107-1.022.166m3.74 0a-.565.565 0 0 1-.565-.565V4.25a.565.565 0 0 1 .565-.565h3a.565.565 0 0 1 .565.565v.985a.565.565 0 0 1-.565.565h-3Zm5.068 0a.565.565 0 0 1-.565-.565V4.25a.565.565 0 0 1 .565-.565h3a.565.565 0 0 1 .565.565v.985a.565.565 0 0 1-.565.565h-3Z" /></svg>`;
+        const editIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>`;
+        const adjustIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0M3.75 18H7.5m3-6h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0M3.75 12H7.5" /></svg>`;
+        // (Novo) Ícones de Observação
+        const obsAddIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+        const obsNoteIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>`;
+
+
+        const successIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+        const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+        
+        const spinner = `
+            <div class="flex justify-center items-center p-10">
+                <div class="spinner w-8 h-8 border-4 border-gray-700 rounded-full" role="status"></div>
+                <span class="ml-3 text-gray-400">Carregando...</span>
+            </div>
+        `;
+
+        const emptyState = (message, icon) => `
+            <div class="flex flex-col items-center justify-center p-10 text-center">
+                ${icon}
+                <p class="mt-4 text-md font-medium text-gray-400">${message}</p>
+            </div>
+        `;
+        const listIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>`;
+        const profileIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.737.517l.636-.212c1.421-.47 2.121-2.121 1.48-3.481L13.172 8.71c-.597-.597-1.403-.934-2.235-.934H9.568Z" /></svg>`;
+        const companyIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 11.25h6.75M9 15.75h6.75M9 20.25h6.75" /></svg>`;
+        const adminIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.822-2.071-1.921-2.321a52.532 52.532 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m7.5-3.321c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 15.807v-.003c0-1.113-.822-2.071-1.921-2.321a52.522 52.522 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0M12.75 10.125c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M12.75 10.125v-.003c0-1.113-.822-2.071-1.921-2.321a52.548 52.548 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0" /></svg>`;
+
+
+        let app, auth, db;
+        let userId = null; 
+        let currentActiveSessionId = null; 
+        
+        let allProfiles = [];
+        let allCompanies = [];
+        let allArrivals = [];
+        let filteredArrivals = []; 
+        let loggedInAdminProfile = null; 
+        
+        let permanenceTimer = null;
+        let activeSessionTimer = null;
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+        let profilesPieChartInstance = null;
+        let companiesBarChartInstance = null;
+
+        let currentPage = 1;
+        const recordsPerPage = 25;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mainApp();
+        });
+        
+        async function mainApp() { 
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } catch (e) {
+                console.error("Erro ao inicializar o Firebase:", e);
+                document.body.innerHTML = "<h1>Erro na configuração do Firebase. Verifique o console.</h1>";
+                return;
+            }
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    console.log("Usuário autenticado:", userId);
+
+                    // (MODIFICADO) Verifica se o usuário logado é anônimo ou um admin real
+                    if (user.isAnonymous) {
+                        console.log("Sessão anônima (Motorista)");
+                        // Se for anônimo, só checa a sessão do motorista
+                        await checkActiveSession(); 
+                        // Garante que o painel admin não esteja visível
+                        if (adminMainContent) adminMainContent.classList.add('hidden');
+                        if (adminLoginSection) adminLoginSection.classList.remove('hidden');
+
+                    } else {
+                        // Se NÃO for anônimo, é um admin que acabou de logar
+                        console.log("Sessão de Admin (Email)");
+                        // Busca o perfil de admin no Firestore
+                        await loadAdminProfile(user.uid);
+                    }
+                    
+                    // Funções que rodam para AMBOS (motorista e admin)
+                    loadPublicProfiles();
+                    loadPublicCompanies();
+
+                } else {
+                    console.log("Nenhum usuário. Tentando login anônimo...");
+                    try {
+                        // (MODIFICADO) O login inicial é sempre anônimo
+                        await signInAnonymously(auth);
+                    } catch (error) {
+                        console.error("Erro ao tentar fazer login anônimo:", error);
+                        try {
+                            showUserNotification('error', 'Erro de Autenticação', 'Não foi possível conectar ao servidor.');
+                        } catch (e) {}
+                    }
+                }
+            });
+
+            const profilesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
+            const companiesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'companies');
+            const arrivalsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'arrivals');
+            const adminUsersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'admin_users');
+
+
+            const userView = document.getElementById('user-view');
+            const adminView = document.getElementById('admin-view');
+            const viewToggleUser = document.getElementById('view-toggle-user');
+            const viewToggleAdmin = document.getElementById('view-toggle-admin');
+
+            viewToggleUser.addEventListener('click', () => {
+                userView.classList.remove('hidden');
+                adminView.classList.add('hidden');
+                viewToggleUser.classList.add('bg-primary', 'text-white');
+                viewToggleUser.classList.remove('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
+                viewToggleAdmin.classList.add('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
+                viewToggleAdmin.classList.remove('bg-primary', 'text-white');
+            });
+
+            viewToggleAdmin.addEventListener('click', () => {
+                adminView.classList.remove('hidden');
+                userView.classList.add('hidden');
+                viewToggleAdmin.classList.add('bg-primary', 'text-white');
+                viewToggleAdmin.classList.remove('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
+                viewToggleUser.classList.add('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
+                viewToggleUser.classList.remove('bg-primary', 'text-white');
+            });
+            
+            const registerView = document.getElementById('register-view');
+            const activeSessionView = document.getElementById('active-session-view');
+            const sessionWelcomeName = document.getElementById('session-welcome-name');
+            const sessionExitBtn = document.getElementById('session-exit-btn');
+
+            const userDriverName = document.getElementById('user-driver-name');
+            const userDriverCpf = document.getElementById('user-driver-cpf');
+            const userDriverCompanySelect = document.getElementById('user-driver-company');
+            const userDriverProfileSelect = document.getElementById('user-driver-profile');
+
+            const userNotificationModal = document.getElementById('user-notification-modal');
+            const userNotificationContent = document.getElementById('user-notification-content');
+            const modalNotificationIcon = document.getElementById('modal-notification-icon');
+            const modalNotificationTitle = document.getElementById('modal-notification-title');
+            const modalNotificationMessage = document.getElementById('modal-notification-message');
+            
+            const plateFieldSingle = document.getElementById('plate-field-single');
+            const plateFieldMulti = document.getElementById('plate-field-multi');
+            const userDriverPlate = document.getElementById('user-driver-plate');
+            const userDriverPlateTracao = document.getElementById('user-driver-plate-tracao');
+            const userDriverPlateReboque = document.getElementById('user-driver-plate-reboque');
+            
+            const registerEntryBtn = document.getElementById('register-entry-btn');
+
+            [userDriverName, userDriverCpf, userDriverCompanySelect, userDriverProfileSelect, userDriverPlate, userDriverPlateTracao, userDriverPlateReboque].forEach(el => {
+                el.addEventListener('input', () => {
+                    hideUserNotification(); 
+                });
+            });
+
+            userDriverProfileSelect.addEventListener('change', (e) => {
+                const profileName = e.target.value.toLowerCase();
+                const isMulti = profileName.includes('carreta') || profileName.includes('baú') || profileName.includes('bau');
+                
+                if (isMulti) {
+                    plateFieldSingle.classList.add('hidden');
+                    plateFieldMulti.classList.remove('hidden');
+                    userDriverPlate.value = ""; 
+                    userDriverPlate.required = false;
+                    userDriverPlateTracao.required = true;
+                    userDriverPlateReboque.required = true;
+                } else {
+                    plateFieldSingle.classList.remove('hidden');
+                    plateFieldMulti.classList.add('hidden');
+                    userDriverPlate.required = true;
+                    userDriverPlateTracao.value = ""; 
+                    userDriverPlateReboque.value = "";
+                    userDriverPlateTracao.required = false;
+                    userDriverPlateReboque.required = false;
+                }
+            });
+
+            function loadPublicProfiles() {
+                if (!db) return;
+                onSnapshot(query(profilesCollection), (snapshot) => {
+                    allProfiles = []; 
+                    userDriverProfileSelect.innerHTML = '<option value="">Selecione um perfil</option>';
+                    snapshot.forEach((doc) => {
+                        const profile = { id: doc.id, ...doc.data() };
+                        allProfiles.push(profile);
+                        const option = document.createElement('option');
+                        option.value = profile.name;
+                        option.textContent = profile.name;
+                        userDriverProfileSelect.appendChild(option);
+                    });
+                    if (snapshot.empty) {
+                        userDriverProfileSelect.innerHTML = '<option value="">Nenhum perfil cadastrado</option>';
+                    }
+                }, (error) => console.error("Erro ao carregar perfis:", error));
+            }
+
+            function loadPublicCompanies() {
+                if (!db) return;
+                onSnapshot(query(companiesCollection), (snapshot) => {
+                    allCompanies = [];
+                    userDriverCompanySelect.innerHTML = '<option value="">Selecione uma empresa</option>';
+                    snapshot.forEach((doc) => {
+                        const company = { id: doc.id, ...doc.data() };
+                        allCompanies.push(company);
+                        const option = document.createElement('option');
+                        option.value = company.name;
+                        option.textContent = company.name;
+                        userDriverCompanySelect.appendChild(option);
+                    });
+                    if (snapshot.empty) {
+                        userDriverCompanySelect.innerHTML = '<option value="">Nenhuma empresa cadastrada</option>';
+                    }
+                }, (error) => console.error("Erro ao carregar empresas:", error));
+            }
+
+            function validateDriverForm() {
+                const name = userDriverName.value;
+                const cpf = userDriverCpf.value;
+                const company = userDriverCompanySelect.value;
+                const profile = userDriverProfileSelect.value;
+                const isMulti = plateFieldMulti.classList.contains('hidden') === false;
+
+                if (!name || !cpf || !company || !profile) {
+                    return { valid: false, error: "Preencha todos os campos: Nome, CPF, Empresa e Perfil." };
+                }
+                
+                let plateData = { plate: null, plate_tracao: null, plate_reboque: null };
+
+                if (isMulti) {
+                    const tracao = userDriverPlateTracao.value;
+                    const reboque = userDriverPlateReboque.value;
+                    if (!tracao || !reboque) {
+                        return { valid: false, error: "Preencha as placas de Tração e Reboque." };
+                    }
+                    plateData.plate_tracao = tracao;
+                    plateData.plate_reboque = reboque;
+                } else {
+                    const plate = userDriverPlate.value;
+                    if (!plate) {
+                        return { valid: false, error: "Preencha a placa do veículo." };
+                    }
+                    plateData.plate = plate;
+                }
+                
+                return { 
+                    valid: true, 
+                    data: { name, cpf, company, profile, ...plateData } 
+                };
+            }
+
+            let notificationTimer = null;
+
+            function showUserNotification(type, title, message) {
+                if (notificationTimer) clearTimeout(notificationTimer);
+
+                modalNotificationTitle.textContent = title;
+                modalNotificationMessage.textContent = message;
+
+                if (type === 'success') {
+                    modalNotificationIcon.innerHTML = successIcon;
+                    modalNotificationIcon.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-900 text-secondary";
+                } else { 
+                    modalNotificationIcon.innerHTML = errorIcon;
+                    modalNotificationIcon.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-900 text-primary";
+                }
+
+                userNotificationModal.classList.remove('hidden');
+                setTimeout(() => { 
+                    userNotificationContent.classList.remove('scale-95', 'opacity-0');
+                    userNotificationContent.classList.add('scale-100', 'opacity-100');
+                }, 10); 
+
+                notificationTimer = setTimeout(hideUserNotification, 3000); 
+            }
+
+            function hideUserNotification() {
+                if (notificationTimer) clearTimeout(notificationTimer);
+                if (userNotificationContent) { 
+                    userNotificationContent.classList.add('scale-95', 'opacity-0');
+                    userNotificationContent.classList.remove('scale-100', 'opacity-100');
+                }
+                
+                setTimeout(() => { 
+                    if (userNotificationModal) { 
+                        userNotificationModal.classList.add('hidden');
+                    }
+                }, 300); 
+            }
+
+            async function getCoords() {
+                return new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject("Geolocalização não é suportada por este navegador.");
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude
+                            });
+                        },
+                        (error) => {
+                            console.warn("Erro ao obter geolocalização: ", error.message);
+                            resolve({ latitude: null, longitude: null });
+                        },
+                        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                    );
+                });
+            }
+
+            function showActiveSession(name, entryTimestamp) {
+                sessionWelcomeName.textContent = name;
+                registerView.classList.add('hidden');
+                activeSessionView.classList.remove('hidden');
+
+                const timerDisplay = document.getElementById('session-active-timer');
+                if (activeSessionTimer) clearInterval(activeSessionTimer);
+
+                const startTime = entryTimestamp.toDate();
+
+                function updateTimer() {
+                    const diffMs = new Date() - startTime;
+                    const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMin = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const diffSeg = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+                    let result = "";
+                    if (diffHoras > 0) result += `${String(diffHoras).padStart(2, '0')}h `;
+                    result += `${String(diffMin).padStart(2, '0')}m `;
+                    result += `${String(diffSeg).padStart(2, '0')}s`;
+                    timerDisplay.textContent = result;
+                }
+
+                updateTimer();
+                activeSessionTimer = setInterval(updateTimer, 1000);
+            }
+
+            function showRegisterForm() {
+                currentActiveSessionId = null;
+                localStorage.removeItem('activeSessionId');
+                registerView.classList.remove('hidden');
+                activeSessionView.classList.add('hidden');
+                document.getElementById('register-activity-form').reset(); 
+                userDriverProfileSelect.dispatchEvent(new Event('change'));
+                if (activeSessionTimer) clearInterval(activeSessionTimer);
+            }
+
+            async function checkActiveSession() {
+                const sessionId = localStorage.getItem('activeSessionId');
+                if (sessionId) {
+                    try {
+                        const docRef = doc(arrivalsCollection, sessionId);
+                        const docSnap = await getDoc(docRef);
+                        
+                        if (docSnap.exists() && docSnap.data().status === 'no_local') {
+                            currentActiveSessionId = sessionId;
+                            showActiveSession(docSnap.data().name, docSnap.data().timestamp_entrada);
+                        } else {
+                            localStorage.removeItem('activeSessionId');
+                        }
+                    } catch (error) {
+                        console.error("Erro ao verificar sessão ativa:", error);
+                        localStorage.removeItem('activeSessionId');
+                    }
+                }
+            }
+
+            registerEntryBtn.addEventListener('click', async () => {
+                const validation = validateDriverForm();
+                
+                if (!validation.valid) {
+                    showUserNotification('error', 'Formulário Incompleto', validation.error);
+                    return;
+                }
+                
+                registerEntryBtn.disabled = true;
+                registerEntryBtn.textContent = "Registrando...";
+
+                try {
+                    const q = query(arrivalsCollection, where("cpf", "==", validation.data.cpf), where("status", "==", "no_local"));
+                    const existingEntry = await getDocs(q);
+
+                    if (!existingEntry.empty) {
+                        showUserNotification('error', 'Entrada Duplicada', 'Já existe uma entrada ativa para este CPF.');
+                        registerEntryBtn.disabled = false;
+                        registerEntryBtn.innerHTML = `<span>Registrar ENTRADA</span>`; 
+                        return;
+                    }
+
+                    showUserNotification('success', 'Aguarde...', 'Obtendo sua localização. Aprove a solicitação do navegador.');
+                    const coords = await getCoords();
+                    const entryTime = Timestamp.now(); 
+
+                    const docData = {
+                        ...validation.data,
+                        status: "no_local",
+                        timestamp_entrada: entryTime, 
+                        timestamp_saida: null,
+                        lat_entrada: coords.latitude,
+                        long_entrada: coords.longitude,
+                        lat_saida: null,
+                        long_saida: null,
+                        observation: "",
+                        uid: userId // (NOVO) Salva o UID do motorista anônimo
+                    };
+
+                    const docRef = await addDoc(arrivalsCollection, docData);
+
+                    currentActiveSessionId = docRef.id;
+                    localStorage.setItem('activeSessionId', docRef.id);
+                    
+                    showUserNotification('success', 'Entrada Registrada!', 'Sua entrada foi registrada com sucesso.');
+                    
+                    showActiveSession(validation.data.name, entryTime);
+
+                } catch (error) {
+                    console.error("Erro ao registrar entrada:", error);
+                    showUserNotification('error', 'Erro no Servidor', 'Erro ao registrar. Tente novamente.');
+                } finally {
+                    registerEntryBtn.disabled = false;
+                    registerEntryBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg><span>Registrar ENTRADA</span>`;
+                }
+            });
+            
+            sessionExitBtn.addEventListener('click', async () => {
+                const sessionId = localStorage.getItem('activeSessionId');
+                if (!sessionId) {
+                    showUserNotification('error', 'Erro de Sessão', 'Sessão não encontrada. Atualize a página.');
+                    return;
+                }
+                
+                sessionExitBtn.disabled = true;
+                sessionExitBtn.textContent = "Registrando...";
+                
+                try {
+                    showUserNotification('success', 'Aguarde...', 'Obtendo sua localização. Aprove a solicitação do navegador.');
+                    const coords = await getCoords();
+                    
+                    await updateDoc(doc(arrivalsCollection, sessionId), {
+                        status: "finalizado",
+                        timestamp_saida: serverTimestamp(),
+                        lat_saida: coords.latitude,
+                        long_saida: coords.longitude
+                    });
+                    
+                    showUserNotification('success', 'Saída Registrada!', 'Sua saída foi registrada com sucesso.');
+                    
+                    showRegisterForm();
+
+                } catch (error) {
+                    console.error("Erro ao registrar saída:", error);
+                    showUserNotification('error', 'Erro no Servidor', 'Erro ao registrar. Tente novamente.');
+                } finally {
+                    sessionExitBtn.disabled = false;
+                    sessionExitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg><span>Registrar SAÍDA</span>`;
+                }
+            });
+
+            
+            const adminLoginSection = document.getElementById('admin-login-section');
+            const adminMainContent = document.getElementById('admin-main-content');
+            const adminLoginForm = document.getElementById('admin-login-form');
+            const adminLoginStatus = document.getElementById('admin-login-status');
+            const adminLogoutBtn = document.getElementById('admin-logout-btn');
+            const adminWelcomeMessage = document.getElementById('admin-welcome-message');
+
+            const tabDashboard = document.getElementById('tab-dashboard');
+            const tabProfiles = document.getElementById('tab-profiles');
+            const tabCompanies = document.getElementById('tab-companies');
+            const tabArrivals = document.getElementById('tab-arrivals');
+            const tabContentDashboard = document.getElementById('tab-content-dashboard');
+            const tabContentProfiles = document.getElementById('tab-content-profiles');
+            const tabContentCompanies = document.getElementById('tab-content-companies');
+            const tabContentArrivals = document.getElementById('tab-content-arrivals');
+            const tabManageAdmins = document.getElementById('tab-manage-admins');
+            const tabContentManageAdmins = document.getElementById('tab-content-manage-admins');
+            
+            const addProfileForm = document.getElementById('add-profile-form');
+            const adminProfileStatus = document.getElementById('admin-profile-status');
+            const profilesList = document.getElementById('profiles-list');
+            
+            const addCompanyForm = document.getElementById('add-company-form');
+            const adminCompanyStatus = document.getElementById('admin-company-status');
+            const companiesList = document.getElementById('companies-list');
+
+            const addAdminForm = document.getElementById('add-admin-form');
+            const adminCrudStatus = document.getElementById('admin-crud-status');
+            const adminUsersList = document.getElementById('admin-users-list');
+            
+            const arrivalsLog = document.getElementById('arrivals-log');
+            const exportExcelBtn = document.getElementById('export-excel-btn');
+            const clearFiltersBtn = document.getElementById('clear-filters-btn');
+
+            const filterName = document.getElementById('filter-name');
+            const filterCpf = document.getElementById('filter-cpf');
+            const filterPlate = document.getElementById('filter-plate');
+            const filterCompany = document.getElementById('filter-company');
+            const filterProfile = document.getElementById('filter-profile');
+            const filterStatus = document.getElementById('filter-status');
+            const filterDateStart = document.getElementById('filter-date-start');
+            const filterDateEnd = document.getElementById('filter-date-end');
+            
+            const editArrivalModal = document.getElementById('edit-arrival-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const modalArrivalId = document.getElementById('modal-arrival-id');
+            const modalInfoName = document.getElementById('modal-info-name');
+            const modalInfoCpf = document.getElementById('modal-info-cpf');
+            const modalTimestampEntrada = document.getElementById('modal-timestamp-entrada');
+            const modalTimestampSaida = document.getElementById('modal-timestamp-saida');
+            const modalStatus = document.getElementById('modal-status');
+            const modalSaveBtn = document.getElementById('modal-save-btn');
+            const modalForceExitBtn = document.getElementById('modal-force-exit-btn');
+            const modalReopenBtn = document.getElementById('modal-reopen-btn');
+            const editArrivalForm = document.getElementById('edit-arrival-form');
+
+            // (Novo) Seletores do Modal de Observação
+            const observationModal = document.getElementById('observation-modal');
+            const modalObsCloseBtn = document.getElementById('modal-obs-close-btn');
+            const observationForm = document.getElementById('observation-form');
+            const modalObsArrivalId = document.getElementById('modal-obs-arrival-id');
+            const modalObservationText = document.getElementById('modal-observation-text');
+            const modalObsStatus = document.getElementById('modal-obs-status');
+            const modalObsSaveBtn = document.getElementById('modal-obs-save-btn');
+
+            const paginationControls = document.getElementById('pagination-controls');
+            const prevPageBtn = document.getElementById('prev-page-btn');
+            const nextPageBtn = document.getElementById('next-page-btn');
+            const pageInfo = document.getElementById('page-info');
+
+            function formatDate(timestamp) {
+                if (!timestamp) return "---";
+                const date = timestamp.toDate();
+                return date.toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            function formatarTempo(totalMinutos) {
+                if (isNaN(totalMinutos) || totalMinutos < 0) return "--";
+                const horas = Math.floor(totalMinutos / 60);
+                const minutos = Math.round(totalMinutos % 60);
+                let result = "";
+                if (horas > 0) result += `${horas}h `;
+                result += `${minutos}m`;
+                return result;
+            }
+
+            function calculatePermanencia(tsEntrada, tsSaida) {
+                if (!tsEntrada) return { text: "---", diffMs: 0 };
+                
+                const inicio = tsEntrada.toDate();
+                const fim = tsSaida ? tsSaida.toDate() : new Date(); 
+                
+                const diffMs = fim - inicio;
+                if (diffMs < 0) return { text: "Erro", diffMs: 0 };
+
+                const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHoras = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const diffMin = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                let result = "";
+                if (diffDias > 0) result += `${diffDias}d `;
+                if (diffHoras > 0 || diffDias > 0) result += `${diffHoras}h `; 
+                result += `${diffMin}m`;
+
+                if (!tsSaida) {
+                    result += " (em andamento)";
+                }
+                
+                return { text: result, diffMs: diffMs };
+            }
+
+            function timestampToInput(timestamp) {
+                if (!timestamp) return "";
+                const date = timestamp.toDate();
+                const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+                return localDate.toISOString().slice(0, 16);
+            }
+
+            function inputToTimestamp(inputString) {
+                if (!inputString) return null;
+                const date = new Date(inputString);
+                return Timestamp.fromDate(date);
+            }
+
+            function switchTab(activeTab) {
+                if (loggedInAdminProfile?.role !== 'master') {
+                    tabManageAdmins.classList.add('hidden');
+                }
+                const tabs = [tabDashboard, tabProfiles, tabCompanies, tabArrivals, tabManageAdmins];
+                const contents = [tabContentDashboard, tabContentProfiles, tabContentCompanies, tabContentArrivals, tabContentManageAdmins];
+                
+                tabs.forEach((tab, index) => {
+                    if (tab) {
+                        if (tab === activeTab) {
+                            tab.classList.add('border-primary', 'text-primary');
+                            tab.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-100', 'hover:border-gray-500');
+                            contents[index].classList.remove('hidden');
+                        } else {
+                            tab.classList.add('border-transparent', 'text-gray-400', 'hover:text-gray-100', 'hover:border-gray-500');
+                            tab.classList.remove('border-primary', 'text-primary');
+                            contents[index].classList.add('hidden');
+                        }
+                    }
+                });
+
+                if (activeTab === tabDashboard) {
+                    updateDashboard();
+                }
+                if (activeTab === tabArrivals) {
+                    currentPage = 1;
+                    renderArrivals();
+                }
+            }
+            tabDashboard.addEventListener('click', () => switchTab(tabDashboard));
+            tabProfiles.addEventListener('click', () => switchTab(tabProfiles));
+            tabCompanies.addEventListener('click', () => switchTab(tabCompanies));
+            tabArrivals.addEventListener('click', () => switchTab(tabArrivals));
+            tabManageAdmins.addEventListener('click', () => switchTab(tabManageAdmins));
+
+            async function checkAndCreateMasterAdmin() {
+                if (!db) return;
+                // (MODIFICADO) Não criamos mais admins, apenas checamos
+                // A criação agora é 100% manual no console do Firebase (veja GUIA_PRODUCAO.md)
+                const q = query(adminUsersCollection, where("role", "==", "master"));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) {
+                    console.warn("Nenhum Master Admin encontrado no Firestore.");
+                    console.warn("Certifique-se de seguir o GUIA_PRODUCAO.md para criar os admins manualmente.");
+                } else {
+                    console.log("Master Admin encontrado no Firestore. Pronto para login.");
+                }
+            }
+            
+            // (MODIFICADO) Função que busca o perfil do admin APÓS o login
+            async function loadAdminProfile(adminUid) {
+                if (!adminUid) return;
+                try {
+                    const docRef = doc(adminUsersCollection, adminUid);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists() && docSnap.data().role) {
+                        // SUCESSO NO LOGIN
+                        loggedInAdminProfile = { id: docSnap.id, ...docSnap.data() };
+                        
+                        adminLoginSection.classList.add('hidden');
+                        adminMainContent.classList.remove('hidden');
+                        adminLoginStatus.textContent = "";
+                        adminWelcomeMessage.textContent = `Olá, ${loggedInAdminProfile.displayName}!`;
+                        adminLogoutBtn.classList.remove('hidden');
+                        
+                        if (loggedInAdminProfile.role === 'master') {
+                            tabManageAdmins.classList.remove('hidden');
+                            loadAdminManagement();
+                        }
+                        
+                        loadAdminData(); // Carrega todos os dados do admin (perfis, empresas, histórico)
+                        switchTab(tabDashboard); 
+                        
+                        if (permanenceTimer) clearInterval(permanenceTimer);
+                        permanenceTimer = setInterval(renderArrivals, 60000); 
+
+                    } else {
+                        // Logou, mas não está na nossa lista de admins
+                        adminLoginStatus.textContent = "Autenticado, mas sem permissão de admin.";
+                        adminLoginStatus.className = "text-center mt-4 font-medium text-red-500";
+                        await signOut(auth); // Desloga o usuário
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar perfil de admin:", error);
+                    adminLoginStatus.textContent = "Erro ao buscar perfil. Tente novamente.";
+                    adminLoginStatus.className = "text-center mt-4 font-medium text-red-500";
+                    await signOut(auth); // Desloga o usuário
+                }
+            }
+
+            adminLoginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // (MODIFICADO) Pega o nome de usuário (ex: alisson.master)
+                const username = document.getElementById('admin-username').value;
+                const password = document.getElementById('admin-password').value;
+                adminLoginStatus.textContent = "Verificando...";
+                adminLoginStatus.className = "text-center mt-4 font-medium text-blue-400";
+                
+                // (NOVO) Lógica para adicionar o sufixo
+                // Se o usuário digitar o email completo, usa o email.
+                // Se digitar só o nome de usuário, adiciona o sufixo.
+                const domainSuffix = "@meuapp.com"; 
+                const email = username.includes('@') ? username : `${username}${domainSuffix}`;
+                
+                try {
+                    // (MODIFICADO) Chama o login com o email formatado
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    
+                    // O login foi bem-sucedido.
+                    // O `onAuthStateChanged` vai disparar automaticamente
+                    // e chamar a função `loadAdminProfile` com o UID do usuário.
+                    // Não precisamos fazer mais nada aqui.
+                    
+                } catch (error) {
+                    // Erros de login (senha errada, usuário não existe)
+                    console.error("Erro ao fazer login:", error.code);
+                    if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        // (MODIFICADO) Mensagem de erro mais genérica
+                        adminLoginStatus.textContent = "Usuário ou senha incorreta.";
+                    } else {
+                        adminLoginStatus.textContent = "Erro ao conectar. Tente novamente.";
+                    }
+                    adminLoginStatus.className = "text-center mt-4 font-medium text-red-500";
+                }
+            });
+
+            adminLogoutBtn.addEventListener('click', async () => {
+                // (MODIFICADO) Chama o logout do Firebase
+                await signOut(auth);
+                
+                // Limpa o estado do app
+                loggedInAdminProfile = null;
+                adminMainContent.classList.add('hidden');
+                adminLoginSection.classList.remove('hidden');
+                adminLogoutBtn.classList.add('hidden');
+                document.getElementById('admin-username').value = "";
+                document.getElementById('admin-password').value = "";
+                switchTab(tabDashboard); 
+                tabManageAdmins.classList.add('hidden');
+                if (permanenceTimer) clearInterval(permanenceTimer);
+                
+                // O `onAuthStateChanged` vai disparar e logar o usuário
+                // como anônimo automaticamente.
+            });
+
+
+            
+            function loadAdminData() {
+                if (!db) return; 
+                
+                // (MODIFICADO) Não precisamos mais recarregar os dados públicos,
+                // eles já foram carregados no onAuthStateChanged.
+                // Apenas carregamos os dados do admin.
+
+                onSnapshot(query(profilesCollection), (snapshot) => {
+                    if (!profilesList) return;
+                    profilesList.innerHTML = spinner;
+                    if (snapshot.empty) { 
+                        profilesList.innerHTML = emptyState("Nenhum perfil cadastrado.", profileIcon); 
+                        return;
+                    }
+                    profilesList.innerHTML = "";
+                    snapshot.forEach((doc) => {
+                        const profile = { id: doc.id, ...doc.data() };
+                        const profileEl = document.createElement('div');
+                        profileEl.className = "flex justify-between items-center p-3 bg-gray-700 rounded-md border border-gray-600";
+                        profileEl.innerHTML = `
+                            <div><p class="font-medium text-gray-100">${profile.name}</p></div>
+                            <button data-id="${profile.id}" class="delete-profile-btn text-red-500 hover:text-red-400 font-medium flex items-center space-x-1">${trashIcon} <span>Excluir</span></button>
+                        `;
+                        profilesList.appendChild(profileEl);
+                    });
+                    document.querySelectorAll('.delete-profile-btn').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const btn = e.target.closest('button');
+                            if (!btn) return;
+                            // (MODIFICADO) Verificação de segurança no cliente
+                            if (loggedInAdminProfile?.role !== 'admin' && loggedInAdminProfile?.role !== 'master') {
+                                window.alert("Você não tem permissão para excluir.");
+                                return;
+                            }
+                            if (window.confirm("Tem certeza que deseja excluir este perfil?")) {
+                                await deleteDoc(doc(profilesCollection, btn.dataset.id));
+                            }
+                        });
+                    });
+                }, (error) => console.error("Erro ao carregar perfis:", error));
+
+                onSnapshot(query(companiesCollection), (snapshot) => {
+                    if (!companiesList) return;
+                    companiesList.innerHTML = spinner;
+                    if (snapshot.empty) { 
+                        companiesList.innerHTML = emptyState("Nenhuma empresa cadastrada.", companyIcon); 
+                        return;
+                    }
+                    companiesList.innerHTML = "";
+                    snapshot.forEach((doc) => {
+                        const company = { id: doc.id, ...doc.data() };
+                        const companyEl = document.createElement('div');
+                        companyEl.className = "flex justify-between items-center p-3 bg-gray-700 rounded-md border border-gray-600";
+                        companyEl.innerHTML = `
+                            <div><p class="font-medium text-gray-100">${company.name}</p></div>
+                            <button data-id="${company.id}" class="delete-company-btn text-red-500 hover:text-red-400 font-medium flex items-center space-x-1">${trashIcon} <span>Excluir</span></button>
+                        `;
+                        companiesList.appendChild(companyEl);
+                    });
+                    document.querySelectorAll('.delete-company-btn').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const btn = e.target.closest('button');
+                            if (!btn) return;
+                            // (MODIFICADO) Verificação de segurança no cliente
+                            if (loggedInAdminProfile?.role !== 'admin' && loggedInAdminProfile?.role !== 'master') {
+                                window.alert("Você não tem permissão para excluir.");
+                                return;
+                            }
+                            if (window.confirm("Tem certeza que deseja excluir esta empresa?")) {
+                                await deleteDoc(doc(companiesCollection, btn.dataset.id));
+                            }
+                        });
+                    });
+                }, (error) => console.error("Erro ao carregar empresas:", error));
+
+                if (arrivalsLog) arrivalsLog.innerHTML = `<tr><td colspan="12">${spinner}</td></tr>`;
+                
+                onSnapshot(query(arrivalsCollection, orderBy("timestamp_entrada", "desc")), (snapshot) => {
+                    allArrivals = []; 
+                    snapshot.forEach((doc) => {
+                        allArrivals.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    allArrivals.sort((a, b) => {
+                        const aActive = a.status === 'no_local';
+                        const bActive = b.status === 'no_local';
+                        
+                        if (aActive && !bActive) return -1; 
+                        if (!aActive && bActive) return 1;  
+
+                        if (aActive && bActive) {
+                            return (a.timestamp_entrada?.toDate() || 0) - (b.timestamp_entrada?.toDate() || 0);
+                        }
+
+                        return (b.timestamp_entrada?.toDate() || 0) - (a.timestamp_entrada?.toDate() || 0);
+                    });
+                    
+                    currentPage = 1; 
+                    renderArrivals(); 
+                    updateDashboard();
+                }, (error) => {
+                    console.error("Erro ao carregar histórico de chegadas:", error);
+                    if (arrivalsLog) {
+                        arrivalsLog.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-red-500">Erro ao carregar histórico.</td></tr>`;
+                    }
+                });
+            }
+
+            addProfileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('profile-name').value;
+                adminProfileStatus.textContent = "Adicionando...";
+                adminProfileStatus.className = "text-center mt-3 font-medium text-blue-400";
+                try {
+                    await addDoc(profilesCollection, { name });
+                    adminProfileStatus.textContent = "Perfil adicionado!";
+                    adminProfileStatus.className = "text-center mt-3 font-medium text-green-500";
+                    addProfileForm.reset();
+                    setTimeout(() => { adminProfileStatus.textContent = ""; }, 3000);
+                } catch (error) {
+                    adminProfileStatus.textContent = "Erro ao adicionar.";
+                    adminProfileStatus.className = "text-center mt-3 font-medium text-red-500";
+                }
+            });
+
+            addCompanyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('company-name').value;
+                adminCompanyStatus.textContent = "Adicionando...";
+                adminCompanyStatus.className = "text-center mt-3 font-medium text-blue-400";
+                try {
+                    await addDoc(companiesCollection, { name });
+                    adminCompanyStatus.textContent = "Empresa adicionada!";
+                    adminCompanyStatus.className = "text-center mt-3 font-medium text-green-500";
+                    addCompanyForm.reset();
+                    setTimeout(() => { adminCompanyStatus.textContent = ""; }, 3000);
+                } catch (error) {
+                    adminCompanyStatus.textContent = "Erro ao adicionar.";
+                    adminCompanyStatus.className = "text-center mt-3 font-medium text-red-500";
+                }
+            });
+
+            
+            function loadAdminManagement() {
+                if (!db || loggedInAdminProfile?.role !== 'master') return;
+                
+                const adminFormTitle = document.getElementById('admin-form-title');
+                const adminEditId = document.getElementById('admin-edit-id');
+                const adminDisplayName = document.getElementById('admin-display-name');
+                const adminFormUsername = document.getElementById('admin-form-username');
+                const adminFormPassword = document.getElementById('admin-form-password');
+                const adminFormRole = document.getElementById('admin-form-role');
+                const adminSubmitBtn = document.getElementById('admin-submit-btn');
+                const adminCancelEditBtn = document.getElementById('admin-cancel-edit-btn');
+                
+                function resetAdminForm() {
+                    addAdminForm.reset();
+                    adminEditId.value = "";
+                    adminFormTitle.textContent = "Adicionar Novo Admin";
+                    adminSubmitBtn.textContent = "Adicionar Admin";
+                    adminCancelEditBtn.classList.add('hidden');
+                    
+                    // (NOVO) Re-habilita os campos de login
+                    adminFormUsername.disabled = false;
+                    adminFormPassword.disabled = false;
+                }
+
+                onSnapshot(query(adminUsersCollection), (snapshot) => {
+                    if (!adminUsersList) return;
+                    adminUsersList.innerHTML = spinner;
+                    if (snapshot.empty) { 
+                        adminUsersList.innerHTML = emptyState("Nenhum admin cadastrado.", adminIcon); 
+                        return;
+                    }
+                    adminUsersList.innerHTML = "";
+                    
+                    snapshot.forEach((doc) => {
+                        const admin = { id: doc.id, ...doc.data() };
+                        const adminEl = document.createElement('div');
+                        adminEl.className = "flex justify-between items-center p-3 bg-gray-700 rounded-md border border-gray-600";
+                        adminEl.innerHTML = `
+                            <div>
+                                <p class="font-medium text-gray-100">${admin.displayName} ${admin.role === 'master' ? '<span class="text-xs font-bold text-primary">(Master)</span>' : ''}</p>
+                                <p class="text-sm text-gray-400">${admin.username}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button data-id="${admin.id}" class="edit-admin-btn text-blue-400 hover:text-blue-300 font-medium flex items-center space-x-1">${editIcon} <span>Editar</span></button>
+                                <button data-id="${admin.id}" class="delete-admin-btn text-red-500 hover:text-red-400 font-medium flex items-center space-x-1">${trashIcon} <span>Excluir</span></button>
+                            </div>
+                        `;
+                        adminUsersList.appendChild(adminEl);
+                    });
+
+                    document.querySelectorAll('.edit-admin-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const btn = e.target.closest('button');
+                            if (!btn) return;
+                            const idToEdit = btn.dataset.id;
+                            const adminData = snapshot.docs.find(doc => doc.id === idToEdit)?.data();
+                            if (adminData) {
+                                adminFormTitle.textContent = "Editar Admin";
+                                adminSubmitBtn.textContent = "Salvar Alterações";
+                                adminCancelEditBtn.classList.remove('hidden');
+                                adminEditId.value = idToEdit;
+                                adminDisplayName.value = adminData.displayName;
+                                // (MODIFICADO) Não editamos mais username/password aqui
+                                // Isso agora é feito no Console do Firebase (Authentication)
+                                adminFormUsername.value = doc.data().username || "Email (Ver no Console)";
+                                adminFormUsername.disabled = true;
+                                adminFormPassword.value = "********";
+                                adminFormPassword.disabled = true;
+                                adminFormRole.value = adminData.role;
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll('.delete-admin-btn').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const btn = e.target.closest('button');
+                            if (!btn) return;
+                            const idToDelete = btn.dataset.id;
+                            if (idToDelete === loggedInAdminProfile.id) {
+                                window.alert("Você não pode excluir a si mesmo.");
+                                return;
+                            }
+                            if (window.confirm("Tem certeza que deseja excluir este admin?")) {
+                                await deleteDoc(doc(adminUsersCollection, idToDelete));
+                            }
+                        });
+                    });
+                }, (error) => console.error("Erro ao carregar lista de admins:", error));
+
+                addAdminForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const id = adminEditId.value; 
+                    const newAdminData = {
+                        displayName: adminDisplayName.value,
+                        username: adminFormUsername.value,
+                        // (REMOVIDO) Não salvamos mais senha
+                        // password: adminFormPassword.value,
+                        role: adminFormRole.value
+                    };
+                    
+                    // (MODIFICADO) Lógica de ADIÇÃO foi removida.
+                    // Admins agora SÓ são criados no Console do Firebase.
+                    // Este formulário agora é SÓ para EDITAR.
+                    if (id) {
+                        adminCrudStatus.textContent = "Salvando...";
+                        adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
+                        
+                        // (CORREÇÃO) Adicionando o TRY/CATCH que faltava
+                        try {
+                            // Atualiza apenas os campos que gerenciamos
+                            await updateDoc(doc(adminUsersCollection, id), {
+                                displayName: newAdminData.displayName,
+                                role: newAdminData.role
+                                // (NOVO) Atualiza o username também
+                                // username: newAdminData.username 
+                                // (Nota: username não deve ser editável, pois está atrelado ao Auth)
+                            });
+                            
+                            adminCrudStatus.textContent = "Admin atualizado!";
+                            adminCrudStatus.className = "text-center mt-3 font-medium text-green-500";
+                            resetAdminForm();
+                            setTimeout(() => { adminCrudStatus.textContent = ""; }, 3000);
+                        } catch (error) {
+                            console.error("Erro ao salvar admin:", error);
+                            adminCrudStatus.textContent = "Erro ao salvar.";
+                            adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
+                        }
+                        
+                    } else {
+                        // (CORREÇÃO) Adicionando o TRY/CATCH que faltava
+                        // (NOTA) Esta lógica é da versão antiga que o usuário está executando.
+                        adminCrudStatus.textContent = "Salvando...";
+                        adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
+                        try {
+                            // (REMOVIDO) A lógica de criação de senha foi removida 
+                            // da versão segura, esta parte não deve ser executada
+                            // se o 'id' não existir.
+                            adminCrudStatus.textContent = "A adição de novos admins deve ser feita no Console do Firebase (Authentication).";
+                            adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
+                            return;
+
+                        } catch (error) {
+                            console.error("Erro ao salvar admin:", error);
+                            adminCrudStatus.textContent = "Erro ao salvar.";
+                            adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
+                        }
+                    }
+
+                });
+                adminCancelEditBtn.addEventListener('click', resetAdminForm);
+            }
+
+            
+            [filterName, filterCpf, filterPlate, filterCompany, filterProfile, filterStatus, filterDateStart, filterDateEnd].forEach(input => {
+                if (input) {
+                    input.addEventListener('input', () => {
+                        currentPage = 1;
+                        renderArrivals();
+                    });
+                } else {
+                    console.warn("Um elemento de filtro não foi encontrado.");
+                }
+            });
+
+            clearFiltersBtn.addEventListener('click', () => {
+                filterName.value = "";
+                filterCpf.value = "";
+                filterPlate.value = "";
+                filterCompany.value = "";
+                filterProfile.value = "";
+                filterStatus.value = "";
+                filterDateStart.value = "";
+                filterDateEnd.value = "";
+                currentPage = 1;
+                renderArrivals();
+            });
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderArrivals();
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredArrivals.length / recordsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderArrivals();
+                }
+            });
+
+            function renderArrivals() {
+                if (!arrivalsLog) return;
+                
+                const fName = filterName.value.toLowerCase();
+                const fCpf = filterCpf.value.toLowerCase();
+                const fPlate = filterPlate.value.toLowerCase();
+                const fCompany = filterCompany.value.toLowerCase();
+                const fProfile = filterProfile.value.toLowerCase();
+                const fStatus = filterStatus.value;
+                const fDateStart = filterDateStart.value;
+                const fDateEnd = filterDateEnd.value;
+
+                const startDate = fDateStart ? new Date(fDateStart + 'T00:00:00') : null;
+                const endDate = fDateEnd ? new Date(fDateEnd + 'T23:59:59') : null;
+
+                filteredArrivals = allArrivals.filter(arrival => {
+                    const arrivalDate = arrival.timestamp_entrada ? arrival.timestamp_entrada.toDate() : null;
+                    const dateMatch = (!startDate || (arrivalDate && arrivalDate >= startDate)) &&
+                                      (!endDate || (arrivalDate && arrivalDate <= endDate));
+                    
+                    const plateMatch = (
+                        (arrival.plate?.toLowerCase() || '').includes(fPlate) ||
+                        (arrival.plate_tracao?.toLowerCase() || '').includes(fPlate) ||
+                        (arrival.plate_reboque?.toLowerCase() || '').includes(fPlate)
+                    );
+
+                    return (
+                        dateMatch &&
+                        plateMatch &&
+                        (arrival.name?.toLowerCase() || '').includes(fName) &&
+                        (arrival.cpf?.toLowerCase() || '').includes(fCpf) &&
+                        (arrival.company?.toLowerCase() || '').includes(fCompany) &&
+                        (arrival.profile?.toLowerCase() || '').includes(fProfile) &&
+                        (fStatus === "" || (arrival.status || '') === fStatus)
+                    );
+                });
+
+                const totalRecords = filteredArrivals.length;
+                const totalPages = Math.ceil(totalRecords / recordsPerPage);
+
+                if (totalRecords === 0) {
+                    arrivalsLog.innerHTML = `<tr><td colspan="12">${emptyState("Nenhum registro encontrado.", listIcon)}</td></tr>`;
+                    paginationControls.classList.add('hidden');
+                    return;
+                }
+
+                paginationControls.classList.remove('hidden');
+                
+                const startIndex = (currentPage - 1) * recordsPerPage;
+                const endIndex = startIndex + recordsPerPage;
+                const paginatedItems = filteredArrivals.slice(startIndex, endIndex);
+
+                prevPageBtn.disabled = (currentPage === 1);
+                nextPageBtn.disabled = (currentPage === totalPages);
+                pageInfo.textContent = `Página ${currentPage} de ${totalPages} (${totalRecords} registros)`;
+
+                arrivalsLog.innerHTML = ""; 
+
+                paginatedItems.forEach(arrival => {
+                    const row = document.createElement('tr');
+                    
+                    const statusClass = arrival.status === 'no_local' ? 'text-secondary' : 'text-gray-300';
+                    const statusText = arrival.status === 'no_local' ? 'No Local' : 'Finalizado';
+                    
+                    const permanencia = calculatePermanencia(arrival.timestamp_entrada, arrival.timestamp_saida);
+                    const isOvertime = (permanencia.diffMs > ONE_DAY_MS) && arrival.status === 'no_local';
+                    const rowClass = isOvertime ? 'bg-red-900/50 hover:bg-red-800/60' : 'hover:bg-gray-700/50';
+                    row.className = `transition-colors duration-150 ${rowClass}`;
+
+                    let locationHtml = '---';
+                    if (arrival.lat_entrada && arrival.long_entrada) {
+                        locationHtml = `<a href="https://www.google.com/maps?q=${arrival.lat_entrada},${arrival.long_entrada}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">Ver Entrada</a>`;
+                    }
+                    if (arrival.lat_saida && arrival.long_saida) {
+                        locationHtml += ` / <a href="https://www.google.com/maps?q=${arrival.lat_saida},${arrival.long_saida}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">Ver Saída</a>`;
+                    }
+
+                    // (Novo) Lógica da Observação
+                    let obsHtml = '';
+                    const obsText = (arrival.observation || "").trim();
+                    if (obsText) {
+                        obsHtml = `
+                            <button data-id="${arrival.id}" class="edit-obs-btn tooltip text-yellow-400 hover:text-yellow-300">
+                                ${obsNoteIcon}
+                                <span class="tooltiptext">${obsText}</span>
+                            </button>
+                        `;
+                    } else {
+                        obsHtml = `
+                            <button data-id="${arrival.id}" class="edit-obs-btn text-gray-500 hover:text-gray-300">
+                                ${obsAddIcon}
+                            </button>
+                        `;
+                    }
+
+                    let actionButton = "<td>---</td>"; 
+                    if (loggedInAdminProfile?.role === 'master') {
+                        actionButton = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <button data-id="${arrival.id}" class="edit-arrival-btn text-blue-400 hover:text-blue-300 font-medium flex items-center space-x-1">
+                                    ${adjustIcon} <span>Ajustar</span>
+                                </button>
+                            </td>
+                        `;
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${statusClass}">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${arrival.status === 'no_local' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-300'}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100">${arrival.name || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${arrival.cpf || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${arrival.company || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${arrival.profile || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(arrival.timestamp_entrada)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(arrival.timestamp_saida)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${permanencia.text}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${locationHtml}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">${obsHtml}</td>
+                        ${actionButton}
+                    `;
+                    arrivalsLog.appendChild(row);
+                });
+            }
+            
+            function updateDashboard() {
+                if (!loggedInAdminProfile || !allArrivals) return; 
+
+                const kpiAtivos = document.getElementById('kpi-ativos');
+                const kpiEntradasHoje = document.getElementById('kpi-entradas-hoje');
+                const kpiTempoMedio = document.getElementById('kpi-tempo-medio');
+                
+                const profilesPieLoading = document.getElementById('profilesPieChart-loading');
+                const companiesBarLoading = document.getElementById('companiesBarChart-loading');
+                profilesPieLoading.innerHTML = spinner;
+                companiesBarLoading.innerHTML = spinner;
+
+                const now = new Date();
+                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+
+                const ativos = allArrivals.filter(a => a.status === 'no_local');
+                kpiAtivos.textContent = ativos.length;
+
+                const entradasHoje = allArrivals.filter(a => 
+                    a.timestamp_entrada && a.timestamp_entrada.toDate() >= todayStart
+                );
+                kpiEntradasHoje.textContent = entradasHoje.length;
+
+                const finalizadosHoje = allArrivals.filter(a => 
+                    a.status === 'finalizado' && 
+                    a.timestamp_saida && a.timestamp_saida.toDate() >= todayStart
+                );
+                
+                if (finalizadosHoje.length > 0) {
+                    const totalMinutos = finalizadosHoje.reduce((sum, a) => {
+                        const permanencia = calculatePermanencia(a.timestamp_entrada, a.timestamp_saida);
+                        return sum + (permanencia.diffMs / (1000 * 60)); // Soma em minutos
+                    }, 0);
+                    const tempoMedioMin = totalMinutos / finalizadosHoje.length;
+                    kpiTempoMedio.textContent = formatarTempo(tempoMedioMin);
+                } else {
+                    kpiTempoMedio.textContent = "N/A";
+                }
+
+                const last7DaysArrivals = allArrivals.filter(a => 
+                    a.timestamp_entrada && a.timestamp_entrada.toDate() >= sevenDaysAgo
+                );
+
+                const profileCounts = last7DaysArrivals.reduce((acc, arrival) => {
+                    const profile = arrival.profile || "N/A";
+                    acc[profile] = (acc[profile] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                const profileData = {
+                    labels: Object.keys(profileCounts),
+                    data: Object.values(profileCounts)
+                };
+                renderPieChart(profileData);
+                profilesPieLoading.innerHTML = ""; // Remove spinner
+
+                const companyCounts = last7DaysArrivals.reduce((acc, arrival) => {
+                    const company = arrival.company || "N/A";
+                    acc[company] = (acc[company] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const top5Companies = Object.entries(companyCounts)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5)
+                    .reverse(); 
+
+                const companyData = {
+                    labels: top5Companies.map(entry => entry[0]),
+                    data: top5Companies.map(entry => entry[1])
+                };
+                renderBarChart(companyData);
+                companiesBarLoading.innerHTML = ""; // Remove spinner
+            }
+
+            function renderPieChart(profileData) {
+                const ctx = document.getElementById('profilesPieChart')?.getContext('2d');
+                if (!ctx) return;
+                
+                if (profilesPieChartInstance) {
+                    profilesPieChartInstance.destroy();
+                }
+
+                if (profileData.labels.length === 0) {
+                    document.getElementById('profilesPieChart-loading').innerHTML = emptyState("Sem dados de perfis nos últimos 7 dias.", profileIcon);
+                    return;
+                }
+                
+                const backgroundColors = [
+                    '#EF4444', '#22C55E', '#3B82F6', '#EAB308', '#8B5CF6', '#F97316'
+                ];
+                
+                profilesPieChartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: profileData.labels,
+                        datasets: [{
+                            data: profileData.data,
+                            backgroundColor: backgroundColors.slice(0, profileData.labels.length),
+                            borderColor: '#1f2937', 
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#d1d5db' 
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function renderBarChart(companyData) {
+                const ctx = document.getElementById('companiesBarChart')?.getContext('2d');
+                if (!ctx) return;
+                
+                if (companiesBarChartInstance) {
+                    companiesBarChartInstance.destroy();
+                }
+
+                if (companyData.labels.length === 0) {
+                    document.getElementById('companiesBarChart-loading').innerHTML = emptyState("Sem dados de empresas nos últimos 7 dias.", companyIcon);
+                    return;
+                }
+                
+                companiesBarChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: companyData.labels,
+                        datasets: [{
+                            label: 'Nº de Entradas',
+                            data: companyData.data,
+                            backgroundColor: '#EF4444',
+                            borderColor: '#DC2626',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#d1d5db',
+                                    precision: 0 
+                                },
+                                grid: {
+                                    color: '#4b5563' 
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: '#d1d5db'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+
+            function showModal() { editArrivalModal.classList.remove('hidden'); }
+            function hideModal() { 
+                editArrivalModal.classList.add('hidden'); 
+                modalStatus.textContent = "";
+                editArrivalForm.reset();
+                modalArrivalId.value = "";
+            }
+            modalCloseBtn.addEventListener('click', hideModal);
+
+            arrivalsLog.addEventListener('click', (e) => {
+                const button = e.target.closest('.edit-arrival-btn');
+                if (button) {
+                    const id = button.dataset.id;
+                    const arrival = allArrivals.find(a => a.id === id);
+                    if (arrival) {
+                        modalArrivalId.value = id;
+                        modalInfoName.textContent = arrival.name;
+                        modalInfoCpf.textContent = arrival.cpf;
+                        modalTimestampEntrada.value = timestampToInput(arrival.timestamp_entrada);
+                        modalTimestampSaida.value = timestampToInput(arrival.timestamp_saida);
+                        
+                        modalForceExitBtn.disabled = (arrival.status === 'finalizado');
+                        modalReopenBtn.disabled = (arrival.status === 'no_local');
+                        
+                        showModal();
+                    }
+                }
+            });
+
+            editArrivalForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                modalStatus.textContent = "Salvando...";
+                modalStatus.className = "text-center mt-3 font-medium text-blue-400";
+                
+                const id = modalArrivalId.value;
+                const newEntrada = inputToTimestamp(modalTimestampEntrada.value);
+                const newSaida = inputToTimestamp(modalTimestampSaida.value);
+
+                if (!newEntrada) {
+                    modalStatus.textContent = "Data de Entrada é obrigatória.";
+                    modalStatus.className = "text-center mt-3 font-medium text-red-500";
+                    return;
+                }
+                
+                try {
+                    await updateDoc(doc(arrivalsCollection, id), {
+                        timestamp_entrada: newEntrada,
+                        timestamp_saida: newSaida,
+                        status: newSaida ? 'finalizado' : 'no_local' 
+                    });
+                    
+                    modalStatus.textContent = "Registro atualizado com sucesso!";
+                    modalStatus.className = "text-center mt-3 font-medium text-green-500";
+                    setTimeout(hideModal, 2000);
+
+                } catch (error) {
+                    console.error("Erro ao salvar ajuste manual:", error);
+                    modalStatus.textContent = "Erro ao salvar.";
+                    modalStatus.className = "text-center mt-3 font-medium text-red-500";
+                }
+            });
+
+            modalForceExitBtn.addEventListener('click', async () => {
+                modalStatus.textContent = "Forçando saída...";
+                modalStatus.className = "text-center mt-3 font-medium text-blue-400";
+                const id = modalArrivalId.value;
+                
+                try {
+                    await updateDoc(doc(arrivalsCollection, id), {
+                        timestamp_saida: serverTimestamp(),
+                        status: 'finalizado'
+                    });
+                    
+                    modalStatus.textContent = "Saída registrada!";
+                    modalStatus.className = "text-center mt-3 font-medium text-green-500";
+                    setTimeout(hideModal, 2000);
+
+                } catch (error) {
+                    console.error("Erro ao forçar saída:", error);
+                    modalStatus.textContent = "Erro ao forçar saída.";
+                    modalStatus.className = "text-center mt-3 font-medium text-red-500";
+                }
+            });
+
+            modalReopenBtn.addEventListener('click', async () => {
+                modalStatus.textContent = "Reabrindo...";
+                modalStatus.className = "text-center mt-3 font-medium text-blue-400";
+                const id = modalArrivalId.value;
+                
+                try {
+                    await updateDoc(doc(arrivalsCollection, id), {
+                        timestamp_saida: null,
+                        status: 'no_local'
+                    });
+                    
+                    modalStatus.textContent = "Registro reaberto!";
+                    modalStatus.className = "text-center mt-3 font-medium text-green-500";
+                    setTimeout(hideModal, 2000);
+
+                } catch (error) {
+                    console.error("Erro ao reabrir:", error);
+                    modalStatus.textContent = "Erro ao reabrir.";
+                    modalStatus.className = "text-center mt-3 font-medium text-red-500";
+                }
+            });
+            
+            // (Novo) Funções do Modal de Observação
+            function showObsModal() { observationModal.classList.remove('hidden'); }
+            function hideObsModal() { 
+                observationModal.classList.add('hidden'); 
+                modalObsStatus.textContent = "";
+                observationForm.reset();
+                modalObsArrivalId.value = "";
+            }
+            modalObsCloseBtn.addEventListener('click', hideObsModal);
+
+            arrivalsLog.addEventListener('click', (e) => {
+                const button = e.target.closest('.edit-obs-btn');
+                if (button) {
+                    const id = button.dataset.id;
+                    const arrival = allArrivals.find(a => a.id === id);
+                    if (arrival) {
+                        modalObsArrivalId.value = id;
+                        modalObservationText.value = arrival.observation || "";
+                        showObsModal();
+                    }
+                }
+            });
+
+            observationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                modalObsStatus.textContent = "Salvando...";
+                modalObsStatus.className = "text-center mt-3 font-medium text-blue-400";
+                
+                const id = modalObsArrivalId.value;
+                const newObservation = modalObservationText.value;
+
+                try {
+                    await updateDoc(doc(arrivalsCollection, id), {
+                        observation: newObservation
+                    });
+                    
+                    modalObsStatus.textContent = "Observação salva!";
+                    modalObsStatus.className = "text-center mt-3 font-medium text-green-500";
+                    setTimeout(hideObsModal, 1500);
+
+                } catch (error) {
+                    console.error("Erro ao salvar observação:", error);
+                    modalObsStatus.textContent = "Erro ao salvar.";
+                    modalObsStatus.className = "text-center mt-3 font-medium text-red-500";
+                }
+            });
+
+
+            function exportToExcel() {
+                const headers = [
+                    "Status", "Nome", "CPF", "Placa (Simples)", "Placa (Tração)", "Placa (Reboque)",
+                    "Empresa", "Perfil", "Data Entrada", "Data Saída", "Tempo de Permanência",
+                    "Lat Entrada", "Long Entrada", "Lat Saída", "Long Saída", "Observação"
+                ];
+                let csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\r\n";
+
+                filteredArrivals.forEach(arrival => {
+                    const statusText = arrival.status === 'no_local' ? 'No Local' : 'Finalizado';
+                    const permanencia = calculatePermanencia(arrival.timestamp_entrada, arrival.timestamp_saida)
+                                            .text.replace(" (em andamento)", ""); 
+                    const observationText = (arrival.observation || "").replace(/"/g, '""'); // Escapa aspas
+                    
+                    const row = [
+                        `"${statusText}"`,
+                        `"${arrival.name || ''}"`,
+                        `"${arrival.cpf || ''}"`,
+                        `"${arrival.plate || ''}"`,
+                        `"${arrival.plate_tracao || ''}"`,
+                        `"${arrival.plate_reboque || ''}"`,
+                        `"${arrival.company || ''}"`,
+                        `"${arrival.profile || ''}"`,
+                        `"${formatDate(arrival.timestamp_entrada)}"`,
+                        `"${formatDate(arrival.timestamp_saida)}"`,
+                        `"${permanencia}"`,
+                        `"${arrival.lat_entrada || ''}"`,
+                        `"${arrival.long_entrada || ''}"`,
+                        `"${arrival.lat_saida || ''}"`,
+                        `"${arrival.long_saida || ''}"`,
+                        `"${observationText}"`
+                    ];
+                    csvContent += row.join(",") + "\r\n";
+                });
+
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "historico_atividades.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            exportExcelBtn.addEventListener('click', exportToExcel);
+
+            function formatName(name) {
+                return name.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+            }
+            function formatCPF(cpf) {
+                cpf = cpf.replace(/\D/g, ""); 
+                if (cpf.length > 11) cpf = cpf.substring(0, 11);
+                cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+                cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+                cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                return cpf;
+            }
+            function formatPlate(plate) {
+                return plate.toUpperCase().replace(/[^A-Z0-9]/g, "");
+            }
+            
+            userDriverName.addEventListener('input', (e) => { e.target.value = formatName(e.target.value); });
+            userDriverCpf.addEventListener('input', (e) => { e.target.value = formatCPF(e.target.value); });
+            userDriverPlate.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
+            userDriverPlateTracao.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
+            userDriverPlateReboque.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
+        
+        } 
+    </script>
+
+</body>
+</html>
