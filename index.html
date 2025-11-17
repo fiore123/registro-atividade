@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +21,13 @@
             scrollbar-width: thin;
             scrollbar-color: var(--color-primary) #1f2937;
         }
+        
+        .dark body {
+             scrollbar-color: var(--color-primary) #1f2937;
+        }
+        .light body {
+             scrollbar-color: var(--color-primary) #f3f4f6;
+        }
 
         .bg-primary { background-color: var(--color-primary); }
         .bg-primary-dark { background-color: var(--color-primary-dark); }
@@ -38,8 +45,13 @@
         }
         .ring-primary { --tw-ring-color: #EF4444; }
 
-        select {
+        .dark select {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+        .light select {
+             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234b5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+        select {
             background-position: right 0.5rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
@@ -53,8 +65,11 @@
             display: none;
             -webkit-appearance: none;
         }
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
             filter: invert(0.8);
+        }
+        .light input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: none;
         }
 
         .spinner {
@@ -89,54 +104,96 @@
             line-height: 1.25;
             white-space: pre-wrap;
         }
+        .dark .tooltip .tooltiptext {
+            background-color: #111827;
+            color: #fff;
+            border: 1px solid #374151;
+        }
+         .light .tooltip .tooltiptext {
+            background-color: #f9fafb;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
         .tooltip:hover .tooltiptext {
             visibility: visible;
             opacity: 1;
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1f2937;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-primary);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .tutorial-modal-slide {
+        .dark ::-webkit-scrollbar { width: 8px; height: 8px; }
+        .dark ::-webkit-scrollbar-track { background: #1f2937; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-dark); }
+        
+        .light ::-webkit-scrollbar { width: 8px; height: 8px; }
+        .light ::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 10px; }
+        .light ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 10px; }
+        .light ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-dark); }
+        
+        .alert-dropdown {
             display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            z-index: 50;
+            width: 320px;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .tutorial-modal-slide.active {
-            display: block;
+        .light .alert-dropdown {
+             background-color: #ffffff;
+             border: 1px solid #e5e7eb;
         }
     </style>
+    
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        }
+    </script>
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-colors duration-300">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+    <div id="loading-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-75">
+        <div class="flex flex-col items-center">
+            <div class="spinner w-10 h-10 border-4 border-gray-700 rounded-full" role="status"></div>
+            <span class="ml-3 text-white text-lg font-medium mt-4">Conectando ao servidor...</span>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl min-h-screen">
 
         <header class="mb-6">
-            <h1 class="text-3xl font-bold text-center text-gray-100 mb-4 flex items-center justify-center space-x-2">
+            <h1 class="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-center space-x-2 relative">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
                 <span>Registro de Atividade</span>
+                
+                <button id="theme-toggle-btn" class="absolute right-0 top-0 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg p-2">
+                    <svg id="theme-icon-sun" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-6.364-.386 1.591-1.591M3 12H.75m.386-6.364 1.591 1.591" />
+                    </svg>
+                    <svg id="theme-icon-moon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                    </svg>
+                    <span class="sr-only">Alternar Tema</span>
+                </button>
             </h1>
-            <div class="flex justify-center bg-gray-800 rounded-lg p-1 max-w-sm mx-auto">
+            <div class="flex justify-center bg-gray-200 dark:bg-gray-800 rounded-lg p-1 max-w-sm mx-auto">
                 <button id="view-toggle-user" class="w-1/2 py-2 px-4 rounded-md text-sm font-medium bg-primary text-white transition-colors duration-300 flex items-center justify-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 17.625 22.5h-11.25a1.875 1.875 0 0 1-1.875-2.382Z" />
                     </svg>
                     <span>Motorista</span>
                 </button>
-                <button id="view-toggle-admin" class="w-1/2 py-2 px-4 rounded-md text-sm font-medium text-gray-400 bg-gray-800 hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                <button id="view-toggle-admin" class="w-1/2 py-2 px-4 rounded-md text-sm font-medium text-gray-500 dark:text-gray-400 bg-transparent dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center space-x-2">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.959 11.959 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                     </svg>
@@ -146,47 +203,51 @@
         </header>
 
         <main id="user-view" class="">
-            <!-- (MODIFICADO) 'p-6' para ficar mais compacto em celulares -->
-            <div id="register-view" class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                <h2 class="text-2xl font-semibold text-center text-gray-100 mb-6">Registro de Atividade</h2>
+            <div id="register-view" class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 border border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-semibold text-center text-gray-900 dark:text-gray-100 mb-6">Registro de Atividade</h2>
                 
                 <form id="register-activity-form" class="space-y-4" onsubmit="return false;">
                     <div>
-                        <label for="user-driver-name" class="block text-sm font-medium text-gray-300">Nome Completo</label>
-                        <input type="text" id="user-driver-name" required placeholder="Digite seu nome" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
-                    </div>
-                    <div>
-                        <label for="user-driver-cpf" class="block text-sm font-medium text-gray-300">CPF</label>
-                        <input type="text" id="user-driver-cpf" required placeholder="000.000.000-00" maxlength="14" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                        <label for="user-driver-cpf" class="block text-sm font-medium text-gray-700 dark:text-gray-300">CPF</label>
+                        <div class="relative">
+                            <input type="text" id="user-driver-cpf" required placeholder="000.000.000-00" maxlength="14" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                            <div id="cpf-search-status" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            </div>
+                        </div>
                     </div>
                     
                     <div>
-                        <label for="user-driver-company" class="block text-sm font-medium text-gray-300">Empresa</label>
-                        <select id="user-driver-company" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                        <label for="user-driver-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome Completo</label>
+                        <input type="text" id="user-driver-name" required placeholder="Digite seu nome" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                    </div>
+                    
+                    <div>
+                        <label for="user-driver-company" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Empresa</label>
+                        <select id="user-driver-company" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
                             <option value="">Selecione uma empresa</option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="user-driver-profile" class="block text-sm font-medium text-gray-300">Perfil do Veículo</label>
-                        <select id="user-driver-profile" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                        <label for="user-driver-profile" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Perfil do Veículo</label>
+                        <select id="user-driver-profile" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
                             <option value="">Selecione um perfil</option>
                         </select>
                     </div>
 
                     <div id="plate-field-single">
-                        <label for="user-driver-plate" class="block text-sm font-medium text-gray-300">Placa</label>
-                        <input type="text" id="user-driver-plate" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                        <label for="user-driver-plate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Placa</label>
+                        <input type="text" id="user-driver-plate" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                     </div>
                     
                     <div id="plate-field-multi" class="hidden space-y-4">
                         <div>
-                            <label for="user-driver-plate-tracao" class="block text-sm font-medium text-gray-300">Placa Tração (Cavalo)</label>
-                            <input type="text" id="user-driver-plate-tracao" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                            <label for="user-driver-plate-tracao" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Placa Tração (Cavalo)</label>
+                            <input type="text" id="user-driver-plate-tracao" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                         </div>
                         <div>
-                            <label for="user-driver-plate-reboque" class="block text-sm font-medium text-gray-300">Placa Reboque (Baú)</label>
-                            <input type="text" id="user-driver-plate-reboque" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                            <label for="user-driver-plate-reboque" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Placa Reboque (Baú)</label>
+                            <input type="text" id="user-driver-plate-reboque" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                         </div>
                     </div>
 
@@ -199,17 +260,16 @@
                 </form>
             </div>
 
-            <!-- (MODIFICADO) Layout da tela de sessão ativa (saída) para ser mais compacto -->
-            <div id="active-session-view" class="hidden max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700 text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-secondary mx-auto mb-3"> <!-- Tamanho reduzido -->
+            <div id="active-session-view" class="hidden max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-secondary mx-auto mb-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
-                <h2 class="text-xl font-semibold text-center text-gray-100 mb-1">Entrada Registrada!</h2> <!-- Fonte reduzida -->
-                <p class="text-base text-gray-300 mb-1">Olá, <span id="session-welcome-name" class="font-bold">...</span></p> <!-- Fonte reduzida -->
-                <p class="text-xs text-gray-400 mb-2">Sua sessão está ativa.</p> <!-- Fonte reduzida -->
-                <p id="session-active-timer" class="text-base text-gray-300 mb-4 font-medium">Calculando...</p> <!-- Fonte reduzida e margem -->
+                <h2 class="text-2xl font-semibold text-center text-gray-900 dark:text-gray-100 mb-2">Entrada Registrada!</h2>
+                <p class="text-lg text-gray-700 dark:text-gray-300 mb-1">Olá, <span id="session-welcome-name" class="font-bold">...</span></p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Sua sessão está ativa.</p>
+                <p id="session-active-timer" class="text-lg text-gray-700 dark:text-gray-300 mb-6 font-medium">Calculando...</p>
                 
-                <div class="pt-2"> <!-- Padding reduzido -->
+                <div class="pt-4">
                     <button type="button" id="session-exit-btn" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" /></svg>
                         <span>Registrar SAÍDA</span>
@@ -221,16 +281,16 @@
         <main id="admin-view" class="hidden">
 
             <section id="admin-login-section">
-                <div class="max-w-md mx-auto bg-gray-800 rounded-lg shadow-xl p-8 border border-gray-700">
-                    <h2 class="text-2xl font-semibold text-center text-gray-100 mb-6">Login do Admin</h2>
+                <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-2xl font-semibold text-center text-gray-900 dark:text-gray-100 mb-6">Login do Admin</h2>
                     <form id="admin-login-form" class="space-y-4">
                          <div>
-                            <label for="admin-username" class="block text-sm font-medium text-gray-300">Usuário</label>
-                            <input type="text" id="admin-username" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                            <label for="admin-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuário</label>
+                            <input type="text" id="admin-username" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                         </div>
                         <div>
-                            <label for="admin-password" class="block text-sm font-medium text-gray-300">Senha</label>
-                            <input type="password" id="admin-password" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                            <label for="admin-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                            <input type="password" id="admin-password" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                         </div>
                         <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">
                             Entrar
@@ -242,8 +302,8 @@
 
             <section id="admin-main-content" class="hidden">
                 <div class="mb-6">
-                    <div class="flex justify-between items-center border-b border-gray-700 mb-4">
-                        <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                    <div class="flex flex-col md:flex-row justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-4">
+                        <nav class="flex -mb-px space-x-6 overflow-x-auto" aria-label="Tabs">
                             <button id="tab-dashboard" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-primary text-primary flex items-center space-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
@@ -251,26 +311,26 @@
                                 </svg>
                                 <span>Visão Geral</span>
                             </button>
-                            <button id="tab-arrivals" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                            <button id="tab-arrivals" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 flex items-center space-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                                 </svg>
                                 <span>Histórico</span>
                             </button>
-                            <button id="tab-profiles" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                            <button id="tab-profiles" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 flex items-center space-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.737.517l.636-.212c1.421-.47 2.121-2.121 1.48-3.481L13.172 8.71c-.597-.597-1.403-.934-2.235-.934H9.568Z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
                                 </svg>
                                 <span>Perfis</span>
                             </button>
-                            <button id="tab-companies" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                            <button id="tab-companies" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 flex items-center space-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 11.25h6.75M9 15.75h6.75M9 20.25h6.75" />
                                 </svg>
                                 <span>Empresas</span>
                             </button>
-                             <button id="tab-manage-admins" class="hidden whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-400 hover:text-gray-100 hover:border-gray-500 flex items-center space-x-1">
+                             <button id="tab-manage-admins" class="hidden whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500 flex items-center space-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.822-2.071-1.921-2.321a52.532 52.532 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m7.5-3.321c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 15.807v-.003c0-1.113-.822-2.071-1.921-2.321a52.522 52.522 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0M12.75 10.125c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M12.75 10.125v-.003c0-1.113-.822-2.071-1.921-2.321a52.548 52.548 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0" />
                                 </svg>
@@ -278,8 +338,25 @@
                             </button>
                         </nav>
                         
-                        <div class="flex items-center space-x-4">
-                            <span id="admin-welcome-message" class="text-sm font-medium text-gray-300">Carregando...</span>
+                        <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                            <div class="relative">
+                                <button id="alert-btn" class="relative text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a23.842 23.842 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                                    </svg>
+                                    <span id="alert-badge" class="hidden absolute -top-2 -right-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center"></span>
+                                </button>
+                                <div id="alert-dropdown" class="alert-dropdown">
+                                    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                                        <h4 class="font-semibold text-gray-900 dark:text-gray-100">Alertas de Pátio</h4>
+                                    </div>
+                                    <div id="alert-list" class="p-4 max-h-60 overflow-y-auto">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Nenhum alerta no momento.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <span id="admin-welcome-message" class="text-sm font-medium text-gray-700 dark:text-gray-300 hidden md:block">Carregando...</span>
                             <button id="admin-logout-btn" class="hidden text-sm font-medium text-red-500 hover:text-red-700 underline flex items-center space-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
@@ -292,7 +369,7 @@
                     <div>
                         <div id="tab-content-dashboard">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-shrink-0 bg-secondary rounded-md p-3">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
@@ -300,12 +377,12 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-medium text-gray-400">Motoristas Ativos</p>
-                                            <p id="kpi-ativos" class="text-3xl font-bold text-gray-100">--</p>
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Motoristas Ativos</p>
+                                            <p id="kpi-ativos" class="text-3xl font-bold text-gray-900 dark:text-gray-100">--</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-shrink-0 bg-primary rounded-md p-3">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
@@ -313,12 +390,12 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-medium text-gray-400">Entradas Hoje</p>
-                                            <p id="kpi-entradas-hoje" class="text-3xl font-bold text-gray-100">--</p>
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Entradas Hoje</p>
+                                            <p id="kpi-entradas-hoje" class="text-3xl font-bold text-gray-900 dark:text-gray-100">--</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
@@ -326,23 +403,23 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-medium text-gray-400">Tempo Médio (Hoje)</p>
-                                            <p id="kpi-tempo-medio" class="text-3xl font-bold text-gray-100">--</p>
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tempo Médio (Hoje)</p>
+                                            <p id="kpi-tempo-medio" class="text-3xl font-bold text-gray-900 dark:text-gray-100">--</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                    <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Perfis (Últimos 7 dias)</h3>
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Perfis (Últimos 7 dias)</h3>
                                     <div class="h-64 md:h-80 relative">
                                         <canvas id="profilesPieChart"></canvas>
                                         <div id="profilesPieChart-loading" class="absolute inset-0 flex items-center justify-center"></div>
                                     </div>
                                 </div>
-                                <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                    <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Top 5 Empresas (Últimos 7 dias)</h3>
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Top 5 Empresas (Últimos 7 dias)</h3>
                                     <div class="h-64 md:h-80 relative">
                                         <canvas id="companiesBarChart"></canvas>
                                         <div id="companiesBarChart-loading" class="absolute inset-0 flex items-center justify-center"></div>
@@ -354,12 +431,12 @@
                         <div id="tab-content-profiles" class="hidden">
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div class="lg:col-span-1">
-                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Adicionar Novo Perfil</h3>
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Adicionar Novo Perfil</h3>
                                         <form id="add-profile-form" class="space-y-4">
                                             <div>
-                                                <label for="profile-name" class="block text-sm font-medium text-gray-300">Nome do Perfil</label>
-                                                <input type="text" id="profile-name" placeholder="Ex: Carreta, VUC, Toco" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                                <label for="profile-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome do Perfil</label>
+                                                <input type="text" id="profile-name" placeholder="Ex: Carreta, VUC, Toco" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                                             </div>
                                             <button type="submit" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -372,8 +449,8 @@
                                     </div>
                                 </div>
                                 <div class="lg:col-span-2">
-                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Perfis Cadastrados</h3>
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Perfis Cadastrados</h3>
                                         <div id="profiles-list" class="space-y-3 max-h-96 overflow-y-auto">
                                         </div>
                                     </div>
@@ -384,12 +461,12 @@
                         <div id="tab-content-companies" class="hidden">
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div class="lg:col-span-1">
-                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Adicionar Nova Empresa</h3>
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Adicionar Nova Empresa</h3>
                                         <form id="add-company-form" class="space-y-4">
                                             <div>
-                                                <label for="company-name" class="block text-sm font-medium text-gray-300">Nome da Empresa</label>
-                                                <input type="text" id="company-name" placeholder="Ex: Transportadora X" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                                <label for="company-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome da Empresa</label>
+                                                <input type="text" id="company-name" placeholder="Ex: Transportadora X" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                                             </div>
                                             <button type="submit" class="w-full bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -402,8 +479,8 @@
                                     </div>
                                 </div>
                                 <div class="lg:col-span-2">
-                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Empresas Cadastradas</h3>
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Empresas Cadastradas</h3>
                                         <div id="companies-list" class="space-y-3 max-h-96 overflow-y-auto">
                                         </div>
                                     </div>
@@ -412,9 +489,9 @@
                         </div>
 
                         <div id="tab-content-arrivals" class="hidden">
-                            <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
                                 <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
-                                    <h3 class="text-lg font-medium leading-6 text-gray-100">Histórico de Atividades</h3>
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Histórico de Atividades</h3>
                                     <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                                         <button id="clear-filters-btn" class="w-full sm:w-auto bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors duration-300 flex items-center justify-center space-x-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -431,54 +508,54 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-                                    <input type="text" id="filter-name" placeholder="Filtrar por Nome" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
-                                    <input type="text" id="filter-cpf" placeholder="Filtrar por CPF" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
-                                    <input type="text" id="filter-plate" placeholder="Filtrar por Placa" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
-                                    <input type="text" id="filter-company" placeholder="Filtrar por Empresa" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
-                                    <input type="text" id="filter-profile" placeholder="Filtrar por Perfil" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
-                                    <select id="filter-status" class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                                    <input type="text" id="filter-name" placeholder="Filtrar por Nome" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                                    <input type="text" id="filter-cpf" placeholder="Filtrar por CPF" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                                    <input type="text" id="filter-plate" placeholder="Filtrar por Placa" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                                    <input type="text" id="filter-company" placeholder="Filtrar por Empresa" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                                    <input type="text" id="filter-profile" placeholder="Filtrar por Perfil" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
+                                    <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
                                         <option value="">Todos os Status</option>
                                         <option value="no_local">No Local</option>
                                         <option value="finalizado">Finalizado</option>
                                     </select>
                                     
                                     <div class="lg:col-span-2">
-                                        <label for="filter-date-start" class="block text-sm font-medium text-gray-300">Data Início (Entrada)</label>
-                                        <input type="date" id="filter-date-start" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white" style="color-scheme: dark;">
+                                        <label for="filter-date-start" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data Início (Entrada)</label>
+                                        <input type="date" id="filter-date-start" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" style="color-scheme: dark;">
                                     </div>
                                     <div class="lg:col-span-2">
-                                        <label for="filter-date-end" class="block text-sm font-medium text-gray-300">Data Fim (Entrada)</label>
-                                        <input type="date" id="filter-date-end" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white" style="color-scheme: dark;">
+                                        <label for="filter-date-end" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data Fim (Entrada)</label>
+                                        <input type="date" id="filter-date-end" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" style="color-scheme: dark;">
                                     </div>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-700">
-                                        <thead class="bg-gray-700">
+                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                        <thead class="bg-gray-100 dark:bg-gray-700">
                                             <tr>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nome</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CPF</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Empresa</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Perfil</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Entrada</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Saída</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Permanência</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Localização</th>
-                                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Obs.</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ações</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nome</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">CPF</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Empresa</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Perfil</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data Entrada</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data Saída</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Permanência</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Localização</th>
+                                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Obs.</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="arrivals-log" class="bg-gray-800 divide-y divide-gray-700">
+                                        <tbody id="arrivals-log" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="flex items-center justify-between py-3" id="pagination-controls">
-                                    <button id="prev-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <button id="prev-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
                                         Anterior
                                     </button>
-                                    <span id="page-info" class="text-sm text-gray-400">Página 1 de 1</span>
-                                    <button id="next-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span id="page-info" class="text-sm text-gray-500 dark:text-gray-400">Página 1 de 1</span>
+                                    <button id="next-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                         Próxima
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                                     </button>
@@ -489,25 +566,25 @@
                         <div id="tab-content-manage-admins" class="hidden">
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div class="lg:col-span-1">
-                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                        <h3 id="admin-form-title" class="text-lg font-medium leading-6 text-gray-100 mb-4">Adicionar Novo Admin</h3>
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <h3 id="admin-form-title" class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Adicionar Novo Admin</h3>
                                         <form id="add-admin-form" class="space-y-4">
                                             <input type="hidden" id="admin-edit-id">
                                             <div>
-                                                <label for="admin-display-name" class="block text-sm font-medium text-gray-300">Nome de Exibição</label>
-                                                <input type="text" id="admin-display-name" placeholder="Ex: Pamella Gomes" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                                <label for="admin-display-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nome de Exibição</label>
+                                                <input type="text" id="admin-display-name" placeholder="Ex: Pamella Gomes" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                                             </div>
                                              <div>
-                                                <label for="admin-form-username" class="block text-sm font-medium text-gray-300">Usuário (login)</label>
-                                                <input type="text" id="admin-form-username" placeholder="Ex: pamella.gomes" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                                <label for="admin-form-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuário (login)</label>
+                                                <input type="text" id="admin-form-username" placeholder="Ex: pamella.gomes" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                                             </div>
                                              <div>
-                                                <label for="admin-form-password" class="block text-sm font-medium text-gray-300">Senha</label>
-                                                <input type="password" id="admin-form-password" required placeholder="Mínimo 6 caracteres" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400">
+                                                <label for="admin-form-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                                                <input type="password" id="admin-form-password" required placeholder="Mínimo 6 caracteres" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                                             </div>
                                             <div>
-                                                <label for="admin-form-role" class="block text-sm font-medium text-gray-300">Tipo de Conta</label>
-                                                <select id="admin-form-role" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white">
+                                                <label for="admin-form-role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Conta</label>
+                                                <select id="admin-form-role" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
                                                     <option value="admin">Admin (Padrão)</option>
                                                     <option value="master">Master (Gerencia Admins)</option>
                                                 </select>
@@ -524,8 +601,8 @@
                                     </div>
                                 </div>
                                 <div class="lg:col-span-2">
-                                    <div class="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-100 mb-4">Admins Cadastrados</h3>
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">Admins Cadastrados</h3>
                                         <div id="admin-users-list" class="space-y-3 max-h-96 overflow-y-auto">
                                         </div>
                                     </div>
@@ -541,22 +618,20 @@
 
     </div>
 
-    <!-- (NOVO) MODAL DE NOTIFICAÇÃO DO USUÁRIO (PARA SUCESSO/ERRO) -->
     <div id="user-notification-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300">
-        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0" id="user-notification-content">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0" id="user-notification-content">
             <div id="modal-notification-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full">
             </div>
-            <h3 id="modal-notification-title" class="text-2xl font-semibold leading-6 text-gray-100 mt-5"></h3>
-            <p id="modal-notification-message" class="text-base text-gray-300 mt-3"></p>
+            <h3 id="modal-notification-title" class="text-2xl font-semibold leading-6 text-gray-900 dark:text-gray-100 mt-5"></h3>
+            <p id="modal-notification-message" class="text-base text-gray-600 dark:text-gray-300 mt-3"></p>
         </div>
     </div>
 
-    <!-- (NOVO) MODAL DE AJUSTE MANUAL DE CHEGADA -->
     <div id="edit-arrival-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
-        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium leading-6 text-gray-100">Ajuste Manual de Registro</h3>
-                <button id="modal-close-btn" class="text-gray-400 hover:text-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Ajuste Manual de Registro</h3>
+                <button id="modal-close-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
@@ -567,22 +642,22 @@
                 <input type="hidden" id="modal-arrival-id">
                 
                 <div>
-                    <p class="text-sm text-gray-400">Motorista</p>
-                    <p id="modal-info-name" class="font-medium text-gray-100"></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Motorista</p>
+                    <p id="modal-info-name" class="font-medium text-gray-900 dark:text-gray-100"></p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-400">CPF</p>
-                    <p id="modal-info-cpf" class="font-medium text-gray-100"></p>
-                </div>
-                
-                <div>
-                    <label for="modal-timestamp-entrada" class="block text-sm font-medium text-gray-300">Data/Hora Entrada</label>
-                    <input type="datetime-local" id="modal-timestamp-entrada" required class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400" style="color-scheme: dark;">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">CPF</p>
+                    <p id="modal-info-cpf" class="font-medium text-gray-900 dark:text-gray-100"></p>
                 </div>
                 
                 <div>
-                    <label for="modal-timestamp-saida" class="block text-sm font-medium text-gray-300">Data/Hora Saída (deixe em branco se "No Local")</label>
-                    <input type="datetime-local" id="modal-timestamp-saida" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400" style="color-scheme: dark;">
+                    <label for="modal-timestamp-entrada" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data/Hora Entrada</label>
+                    <input type="datetime-local" id="modal-timestamp-entrada" required class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" style="color-scheme: dark;">
+                </div>
+                
+                <div>
+                    <label for="modal-timestamp-saida" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data/Hora Saída (deixe em branco se "No Local")</label>
+                    <input type="datetime-local" id="modal-timestamp-saida" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400" style="color-scheme: dark;">
                 </div>
                 
                 <p id="modal-status" class="text-center mt-3 font-medium"></p>
@@ -599,12 +674,11 @@
         </div>
     </div>
 
-    <!-- (NOVO) MODAL DE OBSERVAÇÃO -->
     <div id="observation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
-        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium leading-6 text-gray-100">Adicionar/Editar Observação</h3>
-                <button id="modal-obs-close-btn" class="text-gray-400 hover:text-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Adicionar/Editar Observação</h3>
+                <button id="modal-obs-close-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
@@ -614,8 +688,8 @@
             <form id="observation-form" class="space-y-4">
                 <input type="hidden" id="modal-obs-arrival-id">
                 <div>
-                    <label for="modal-observation-text" class="block text-sm font-medium text-gray-300">Observação</label>
-                    <textarea id="modal-observation-text" rows="4" class="mt-1 w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-700 text-white placeholder-gray-400"></textarea>
+                    <label for="modal-observation-text" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Observação</label>
+                    <textarea id="modal-observation-text" rows="4" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"></textarea>
                 </div>
                 
                 <p id="modal-obs-status" class="text-center mt-3 font-medium"></p>
@@ -627,60 +701,69 @@
         </div>
     </div>
 
-    <!-- (NOVO) MODAL DE TUTORIAL DE BEM-VINDAS -->
-    <div id="tutorial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
-        <div class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-w-md w-full p-6 transform transition-all scale-95 opacity-0" id="tutorial-modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold leading-6 text-gray-100">Bem-vindo ao Registro de Atividade!</h3>
-                <button id="tutorial-close-btn" class="text-gray-400 hover:text-gray-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    <div id="tutorial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300 p-4">
+        <div id="tutorial-content" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6 transform transition-all scale-95 opacity-0">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-semibold leading-6 text-gray-900 dark:text-gray-100" id="tutorial-title">
+                    Bem-vindo ao Registro de Atividade!
+                </h3>
+                <button id="tutorial-close-btn" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
+                    <span class="sr-only">Fechar tutorial</span>
                 </button>
             </div>
             
-            <div class="overflow-hidden relative h-64">
-                <div id="tutorial-slide-1" class="tutorial-modal-slide active p-2">
-                    <h4 class="text-lg font-medium text-primary mb-2">Passo 1: Preenchimento</h4>
-                    <p class="text-sm text-gray-300 mb-4">Preencha seu Nome, CPF, Empresa, Perfil e Placa(s) para registrar sua entrada.</p>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            <div class="mt-4 space-y-4" id="tutorial-step-1">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Este é um guia rápido sobre como usar o app.</p>
+                <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 mx-auto text-primary">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 17.625 22.5h-11.25a1.875 1.875 0 0 1-1.875-2.382Z" />
                     </svg>
+                    <p class="mt-2 font-medium text-gray-700 dark:text-gray-200">Passo 1: Preenchimento</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Digite seu CPF. Se você já veio aqui, seus dados (Nome, Placa, etc.) serão preenchidos automaticamente!</p>
                 </div>
-                <div id="tutorial-slide-2" class="tutorial-modal-slide p-2">
-                    <h4 class="text-lg font-medium text-primary mb-2">Passo 2: Permissão de Localização</h4>
-                    <p class="text-sm text-gray-300 mb-4">Para confirmar sua chegada, o navegador pedirá sua localização. Por favor, clique em <span class="font-bold text-gray-100">"Permitir"</span> ou <span class="font-bold text-gray-100">"Allow"</span>.</p>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+            </div>
+
+            <div class="hidden mt-4 space-y-4" id="tutorial-step-2">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Este é o passo mais importante!</p>
+                <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 mx-auto text-primary">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                     </svg>
-                </div>
-                <div id="tutorial-slide-3" class="tutorial-modal-slide p-2">
-                    <h4 class="text-lg font-medium text-primary mb-2">Passo 3: Sessão Ativa</h4>
-                    <p class="text-sm text-gray-300 mb-4">Após a entrada, sua sessão mostrará o tempo de permanência. Mantenha esta página aberta ou reabra quando for sair.</p>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-gray-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                </div>
-                <div id="tutorial-slide-4" class="tutorial-modal-slide p-2">
-                    <h4 class="text-lg font-medium text-primary mb-2">Passo 4: Registrar Saída</h4>
-                    <p class="text-sm text-gray-300 mb-4">Ao final, apenas clique no botão vermelho "Registrar SAÍDA". O app pedirá sua localização novamente para finalizar.</p>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-24 h-24 mx-auto text-red-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
-                    </svg>
+                    <p class="mt-2 font-medium text-gray-700 dark:text-gray-200">Passo 2: Permissão de Localização</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Ao clicar em "Registrar Entrada" ou "Saída", seu navegador pedirá permissão para acessar sua localização. **Você precisa aceitar** para que o registro seja validado.</p>
                 </div>
             </div>
             
-            <div class="flex items-center justify-between mt-6">
-                <button id="tutorial-prev-btn" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Anterior</button>
-                <div class="flex space-x-2" id="tutorial-dots">
-                    <span class="w-2 h-2 bg-primary rounded-full"></span>
-                    <span class="w-2 h-2 bg-gray-600 rounded-full"></span>
-                    <span class="w-2 h-2 bg-gray-600 rounded-full"></span>
-                    <span class="w-2 h-2 bg-gray-600 rounded-full"></span>
+            <div class="hidden mt-4 space-y-4" id="tutorial-step-3">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Após registrar a entrada...</p>
+                <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 mx-auto text-primary">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <p class="mt-2 font-medium text-gray-700 dark:text-gray-200">Passo 3: Sessão Ativa</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Esta tela aparecerá, mostrando seu tempo de permanência. Você pode fechar o navegador; sua sessão continuará ativa.</p>
                 </div>
-                <button id="tutorial-next-btn" class="bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">Próximo</button>
-                <button id="tutorial-finish-btn" class="hidden bg-secondary text-white font-bold py-2 px-4 rounded-md hover:bg-secondary-dark transition-colors duration-300">Entendi!</button>
+            </div>
+            
+            <div class="hidden mt-4 space-y-4" id="tutorial-step-4">
+                <p class="text-sm text-gray-600 dark:text-gray-300">Ao final da sua atividade.</p>
+                <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 mx-auto text-primary">
+                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+                    </svg>
+                    <p class="mt-2 font-medium text-gray-700 dark:text-gray-200">Passo 4: Registrar Saída</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Abra o site novamente e clique no botão "Registrar SAÍDA" para finalizar sua atividade.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="tutorial-next-btn" class="bg-primary text-white font-bold py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300">
+                    Próximo
+                </button>
             </div>
         </div>
     </div>
@@ -711,12 +794,9 @@
             serverTimestamp,
             setLogLevel,
             orderBy,
-            Timestamp,
-            limit // (MODIFICADO) Importa a função 'limit'
+            Timestamp
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // (NOVO) Objeto de configuração do Firebase.
-        // SUBSTITUA ESTE BLOCO pelo seu objeto `firebaseConfig` copiado do console do Firebase.
         const firebaseConfig = {
         apiKey: "AIzaSyAPWUc6PcGw87ObV9UITqVjyHBB7iQc_VQ",
         authDomain: "registro-atividade.firebaseapp.com",
@@ -726,9 +806,8 @@
         appId: "1:975039192548:web:0e10594cbee1df8cabfbf1",
         measurementId: "G-JHLSFZDJKB"
         };
-        
         const appId = firebaseConfig.projectId || 'default-app-id';
-
+        
         const trashIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12.502 0c-.342.052-.682.107-1.022.166m3.74 0a-.565.565 0 0 1-.565-.565V4.25a.565.565 0 0 1 .565-.565h3a.565.565 0 0 1 .565.565v.985a.565.565 0 0 1-.565.565h-3Zm5.068 0a.565.565 0 0 1-.565-.565V4.25a.565.565 0 0 1 .565-.565h3a.565.565 0 0 1 .565.565v.985a.565.565 0 0 1-.565.565h-3Z" /></svg>`;
         const editIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" /></svg>`;
         const adjustIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0M3.75 18H7.5m3-6h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0M3.75 12H7.5" /></svg>`;
@@ -739,26 +818,34 @@
         
         const spinner = `
             <div class="flex justify-center items-center p-10">
-                <div class="spinner w-8 h-8 border-4 border-gray-700 rounded-full" role="status"></div>
-                <span class="ml-3 text-gray-400">Carregando...</span>
+                <div class="spinner w-8 h-8 border-4 border-gray-300 dark:border-gray-700 rounded-full" role="status"></div>
+                <span class="ml-3 text-gray-500 dark:text-gray-400">Carregando...</span>
             </div>
         `;
+        
+        const cpfSearchSpinner = `<div class="spinner w-5 h-5 border-2 border-gray-300 dark:border-gray-700 rounded-full" role="status"></div>`;
+        const cpfSearchSuccess = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-secondary"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+        const cpfSearchError = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`;
+
 
         const emptyState = (message, icon) => `
             <div class="flex flex-col items-center justify-center p-10 text-center">
                 ${icon}
-                <p class="mt-4 text-md font-medium text-gray-400">${message}</p>
+                <p class="mt-4 text-md font-medium text-gray-500 dark:text-gray-400">${message}</p>
             </div>
         `;
-        const listIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>`;
-        const profileIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.737.517l.636-.212c1.421-.47 2.121-2.121 1.48-3.481L13.172 8.71c-.597-.597-1.403-.934-2.235-.934H9.568Z" /></svg>`;
-        const companyIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 11.25h6.75M9 15.75h6.75M9 20.25h6.75" /></svg>`;
-        const adminIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.822-2.071-1.921-2.321a52.532 52.532 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m7.5-3.321c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 15.807v-.003c0-1.113-.822-2.071-1.921-2.321a52.522 52.522 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0M12.75 10.125c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M12.75 10.125v-.003c0-1.113-.822-2.071-1.921-2.321a52.548 52.548 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0" /></svg>`;
+        const listIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 dark:text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h7.5M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>`;
+        const profileIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 dark:text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.737.517l.636-.212c1.421-.47 2.121-2.121 1.48-3.481L13.172 8.71c-.597-.597-1.403-.934-2.235-.934H9.568Z" /></svg>`;
+        const companyIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 dark:text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.75M9 11.25h6.75M9 15.75h6.75M9 20.25h6.75" /></svg>`;
+        const adminIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 dark:text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.822-2.071-1.921-2.321a52.532 52.532 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m7.5-3.321c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 15.807v-.003c0-1.113-.822-2.071-1.921-2.321a52.522 52.522 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0M12.75 10.125c.842.212 1.673.284 2.5.372a9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M12.75 10.125v-.003c0-1.113-.822-2.071-1.921-2.321a52.548 52.548 0 0 0-4.136.525c-1.101.25-1.92.003-1.921-.003v.003m0 0a2.25 2.25 0 0 1 4.5 0" /></svg>`;
+
 
         let app, auth, db;
         let userId = null; 
         let currentActiveSessionId = null; 
         let currentActiveSessionCpf = null; 
+        let currentEntryData = null; 
+        let cpfSearchTimer = null;
         
         let allProfiles = [];
         let allCompanies = [];
@@ -776,35 +863,12 @@
         let currentPage = 1;
         const recordsPerPage = 25;
 
-        // (NOVO) Variáveis do Tutorial
-        const tutorialModal = document.getElementById('tutorial-modal');
-        const tutorialModalContent = document.getElementById('tutorial-modal-content');
-        const tutorialSlides = document.querySelectorAll('.tutorial-modal-slide');
-        const tutorialDots = document.getElementById('tutorial-dots').querySelectorAll('span');
-        const tutorialPrevBtn = document.getElementById('tutorial-prev-btn');
-        const tutorialNextBtn = document.getElementById('tutorial-next-btn');
-        const tutorialFinishBtn = document.getElementById('tutorial-finish-btn');
-        const tutorialCloseBtn = document.getElementById('tutorial-close-btn');
-        let currentTutorialSlide = 0;
-
         document.addEventListener('DOMContentLoaded', () => {
             mainApp();
         });
         
         async function mainApp() { 
             try {
-                // (NOVO) Lógica para checar se o firebaseConfig foi preenchido
-                if (firebaseConfig.apiKey === "SEU_API_KEY_AQUI") {
-                    console.error("Erro: firebaseConfig não foi preenchido.");
-                    document.body.innerHTML = `
-                        <div class="p-8 text-center text-white">
-                            <h1 class="text-2xl font-bold text-red-500 mb-4">Erro de Configuração</h1>
-                            <p>O objeto \`firebaseConfig\` no arquivo \`index.html\` (linha 1021) não foi preenchido.</p>
-                            <p>Por favor, siga o \`GUIA_PRODUCAO.md\` para criar seu projeto no Firebase e colar suas chaves de configuração.</p>
-                        </div>
-                    `;
-                    return;
-                }
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -814,32 +878,28 @@
                 return;
             }
 
-            // (NOVO) Mostrar tutorial se for a primeira visita
-            if (!localStorage.getItem('hasSeenTutorial')) {
-                showTutorial();
-            }
+            const loadingOverlay = document.getElementById('loading-overlay');
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
-                    console.log("Usuário autenticado:", userId);
 
                     if (user.isAnonymous) {
-                        console.log("Sessão anônima (Motorista)");
                         await checkActiveSession(); 
                         if (adminMainContent) adminMainContent.classList.add('hidden');
                         if (adminLoginSection) adminLoginSection.classList.remove('hidden');
-
                     } else {
-                        console.log("Sessão de Admin (Email)");
                         await loadAdminProfile(user.uid);
                     }
                     
                     loadPublicProfiles();
                     loadPublicCompanies();
+                    
+                    if (!localStorage.getItem('tutorialSeen')) {
+                        showTutorial();
+                    }
 
                 } else {
-                    console.log("Nenhum usuário. Tentando login anônimo...");
                     try {
                         await signInAnonymously(auth);
                     } catch (error) {
@@ -849,14 +909,16 @@
                         } catch (e) {}
                     }
                 }
+                
+                loadingOverlay.classList.add('hidden');
             });
-
+            
             const profilesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
             const companiesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'companies');
             const arrivalsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'arrivals');
             const adminUsersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'admin_users');
-            // (MODIFICADO) Nova coleção para checagem de duplicata
             const activeCpfsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'active_cpfs');
+            const driverProfileCollection = collection(db, 'artifacts', appId, 'public', 'data', 'driver_profiles');
 
 
             const userView = document.getElementById('user-view');
@@ -868,8 +930,8 @@
                 userView.classList.remove('hidden');
                 adminView.classList.add('hidden');
                 viewToggleUser.classList.add('bg-primary', 'text-white');
-                viewToggleUser.classList.remove('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
-                viewToggleAdmin.classList.add('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
+                viewToggleUser.classList.remove('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+                viewToggleAdmin.classList.add('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 viewToggleAdmin.classList.remove('bg-primary', 'text-white');
             });
 
@@ -877,8 +939,8 @@
                 adminView.classList.remove('hidden');
                 userView.classList.add('hidden');
                 viewToggleAdmin.classList.add('bg-primary', 'text-white');
-                viewToggleAdmin.classList.remove('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
-                viewToggleUser.classList.add('bg-gray-800', 'text-gray-400', 'hover:bg-gray-700');
+                viewToggleAdmin.classList.remove('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
+                viewToggleUser.classList.add('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 viewToggleUser.classList.remove('bg-primary', 'text-white');
             });
             
@@ -891,6 +953,7 @@
             const userDriverCpf = document.getElementById('user-driver-cpf');
             const userDriverCompanySelect = document.getElementById('user-driver-company');
             const userDriverProfileSelect = document.getElementById('user-driver-profile');
+            const cpfSearchStatus = document.getElementById('cpf-search-status');
 
             const userNotificationModal = document.getElementById('user-notification-modal');
             const userNotificationContent = document.getElementById('user-notification-content');
@@ -971,6 +1034,54 @@
                     }
                 }, (error) => console.error("Erro ao carregar empresas:", error));
             }
+            
+            async function fetchDriverProfile(cpf) {
+                if (!db || !userId) return;
+                cpfSearchStatus.innerHTML = cpfSearchSpinner;
+
+                try {
+                    const docRef = doc(driverProfileCollection, cpf);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        userDriverName.value = data.name || "";
+                        userDriverCompanySelect.value = data.company || "";
+                        userDriverProfileSelect.value = data.profile || "";
+                        userDriverProfileSelect.dispatchEvent(new Event('change')); 
+                        
+                        if (data.plate) {
+                            userDriverPlate.value = data.plate;
+                        }
+                        if (data.plate_tracao) {
+                            userDriverPlateTracao.value = data.plate_tracao;
+                        }
+                        if (data.plate_reboque) {
+                            userDriverPlateReboque.value = data.plate_reboque;
+                        }
+                        
+                        cpfSearchStatus.innerHTML = cpfSearchSuccess;
+                    } else {
+                        cpfSearchStatus.innerHTML = cpfSearchError;
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar perfil do motorista:", error);
+                    cpfSearchStatus.innerHTML = cpfSearchError;
+                }
+            }
+
+            userDriverCpf.addEventListener('input', (e) => { 
+                e.target.value = formatCPF(e.target.value); 
+                cpfSearchStatus.innerHTML = "";
+                
+                if (e.target.value.length === 14) {
+                    if (cpfSearchTimer) clearTimeout(cpfSearchTimer);
+                    cpfSearchTimer = setTimeout(() => {
+                        fetchDriverProfile(e.target.value);
+                    }, 500);
+                }
+            });
+
 
             function validateDriverForm() {
                 const name = userDriverName.value;
@@ -1017,10 +1128,10 @@
 
                 if (type === 'success') {
                     modalNotificationIcon.innerHTML = successIcon;
-                    modalNotificationIcon.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-900 text-secondary";
+                    modalNotificationIcon.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900 text-secondary";
                 } else { 
                     modalNotificationIcon.innerHTML = errorIcon;
-                    modalNotificationIcon.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-900 text-primary";
+                    modalNotificationIcon.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900 text-primary";
                 }
 
                 userNotificationModal.classList.remove('hidden');
@@ -1100,10 +1211,12 @@
             function showRegisterForm() {
                 currentActiveSessionId = null;
                 currentActiveSessionCpf = null;
+                currentEntryData = null; 
                 localStorage.removeItem('activeSessionId');
                 registerView.classList.remove('hidden');
                 activeSessionView.classList.add('hidden');
                 document.getElementById('register-activity-form').reset(); 
+                cpfSearchStatus.innerHTML = "";
                 userDriverProfileSelect.dispatchEvent(new Event('change'));
                 if (activeSessionTimer) clearInterval(activeSessionTimer);
             }
@@ -1117,7 +1230,9 @@
                         
                         if (docSnap.exists() && docSnap.data().status === 'no_local') {
                             currentActiveSessionId = sessionId;
-                            showActiveSession(docSnap.data().name, docSnap.data().timestamp_entrada, docSnap.data().cpf);
+                            const data = docSnap.data();
+                            currentEntryData = data;
+                            showActiveSession(data.name, data.timestamp_entrada, data.cpf);
                         } else {
                             localStorage.removeItem('activeSessionId');
                         }
@@ -1140,7 +1255,6 @@
                 registerEntryBtn.textContent = "Registrando...";
 
                 try {
-                    // (MODIFICADO) Nova lógica de verificação
                     const cpfDocRef = doc(activeCpfsCollection, validation.data.cpf);
                     const cpfDocSnap = await getDoc(cpfDocRef);
 
@@ -1154,8 +1268,8 @@
                     showUserNotification('success', 'Aguarde...', 'Obtendo sua localização. Aprove a solicitação do navegador.');
                     const coords = await getCoords();
                     const entryTime = Timestamp.now(); 
-
-                    const docData = {
+                    
+                    currentEntryData = {
                         ...validation.data,
                         status: "no_local",
                         timestamp_entrada: entryTime, 
@@ -1168,9 +1282,8 @@
                         uid: userId
                     };
 
-                    const docRef = await addDoc(arrivalsCollection, docData);
-                    // (MODIFICADO) Adiciona o CPF à coleção de controle
-                    await setDoc(cpfDocRef, { uid: userId, arrivalId: docRef.id });
+                    const docRef = await addDoc(arrivalsCollection, currentEntryData);
+                    await setDoc(cpfDocRef, { uid: userId });
 
                     currentActiveSessionId = docRef.id;
                     localStorage.setItem('activeSessionId', docRef.id);
@@ -1190,7 +1303,7 @@
             
             sessionExitBtn.addEventListener('click', async () => {
                 const sessionId = localStorage.getItem('activeSessionId');
-                if (!sessionId || !currentActiveSessionCpf) {
+                if (!sessionId || !currentActiveSessionCpf || !currentEntryData) {
                     showUserNotification('error', 'Erro de Sessão', 'Sessão não encontrada. Atualize a página.');
                     return;
                 }
@@ -1209,8 +1322,19 @@
                         long_saida: coords.longitude
                     });
                     
-                    // (MODIFICADO) Remove o CPF da coleção de controle
                     await deleteDoc(doc(activeCpfsCollection, currentActiveSessionCpf));
+
+                    const profileData = {
+                        name: currentEntryData.name,
+                        cpf: currentEntryData.cpf,
+                        company: currentEntryData.company,
+                        profile: currentEntryData.profile,
+                        plate: currentEntryData.plate,
+                        plate_tracao: currentEntryData.plate_tracao,
+                        plate_reboque: currentEntryData.plate_reboque,
+                        uid: userId 
+                    };
+                    await setDoc(doc(driverProfileCollection, currentEntryData.cpf), profileData, { merge: true });
 
                     showUserNotification('success', 'Saída Registrada!', 'Sua saída foi registrada com sucesso.');
                     
@@ -1295,6 +1419,105 @@
             const nextPageBtn = document.getElementById('next-page-btn');
             const pageInfo = document.getElementById('page-info');
 
+            const alertBtn = document.getElementById('alert-btn');
+            const alertDropdown = document.getElementById('alert-dropdown');
+            const alertBadge = document.getElementById('alert-badge');
+            const alertList = document.getElementById('alert-list');
+
+            alertBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (alertDropdown.style.display === 'block') {
+                    alertDropdown.style.display = 'none';
+                } else {
+                    alertDropdown.style.display = 'block';
+                }
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!alertDropdown.contains(e.target) && e.target !== alertBtn) {
+                    alertDropdown.style.display = 'none';
+                }
+            });
+
+
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const themeIconSun = document.getElementById('theme-icon-sun');
+            const themeIconMoon = document.getElementById('theme-icon-moon');
+
+            function setTheme(isLight) {
+                if (isLight) {
+                    document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
+                    themeIconSun.classList.add('hidden');
+                    themeIconMoon.classList.remove('hidden');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                    themeIconSun.classList.remove('hidden');
+                    themeIconMoon.classList.add('hidden');
+                    localStorage.setItem('theme', 'dark');
+                }
+                updateDashboard(); 
+            }
+
+            if (localStorage.getItem('theme') === 'light') {
+                setTheme(true);
+            } else {
+                setTheme(false);
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                setTheme(document.documentElement.classList.contains('dark'));
+            });
+            
+            const tutorialModal = document.getElementById('tutorial-modal');
+            const tutorialContent = document.getElementById('tutorial-content');
+            const tutorialNextBtn = document.getElementById('tutorial-next-btn');
+            const tutorialCloseBtn = document.getElementById('tutorial-close-btn');
+            let currentTutorialStep = 1;
+
+            function showTutorial() {
+                tutorialModal.classList.remove('hidden');
+                setTimeout(() => { 
+                    tutorialContent.classList.remove('scale-95', 'opacity-0');
+                    tutorialContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+            function hideTutorial() {
+                tutorialContent.classList.add('scale-95', 'opacity-0');
+                tutorialContent.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => { 
+                    tutorialModal.classList.add('hidden');
+                }, 300);
+            }
+
+            tutorialNextBtn.addEventListener('click', () => {
+                currentTutorialStep++;
+                document.getElementById(`tutorial-step-${currentTutorialStep - 1}`).classList.add('hidden');
+                
+                const nextStep = document.getElementById(`tutorial-step-${currentTutorialStep}`);
+                if (nextStep) {
+                    nextStep.classList.remove('hidden');
+                    document.getElementById('tutorial-title').textContent = nextStep.querySelector('p:nth-child(2)').textContent; 
+                }
+                
+                if (currentTutorialStep === 4) {
+                    tutorialNextBtn.textContent = "Entendi!";
+                }
+                
+                if (currentTutorialStep > 4) {
+                    localStorage.setItem('tutorialSeen', 'true');
+                    hideTutorial();
+                }
+            });
+            
+            tutorialCloseBtn.addEventListener('click', () => {
+                localStorage.setItem('tutorialSeen', 'true');
+                hideTutorial();
+            });
+
+
             function formatDate(timestamp) {
                 if (!timestamp) return "---";
                 const date = timestamp.toDate();
@@ -1363,10 +1586,10 @@
                     if (tab) {
                         if (tab === activeTab) {
                             tab.classList.add('border-primary', 'text-primary');
-                            tab.classList.remove('border-transparent', 'text-gray-400', 'hover:text-gray-100', 'hover:border-gray-500');
+                            tab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700', 'dark:hover:text-gray-100', 'hover:border-gray-400', 'dark:hover:border-gray-500');
                             contents[index].classList.remove('hidden');
                         } else {
-                            tab.classList.add('border-transparent', 'text-gray-400', 'hover:text-gray-100', 'hover:border-gray-500');
+                            tab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700', 'dark:hover:text-gray-100', 'hover:border-gray-400', 'dark:hover:border-gray-500');
                             tab.classList.remove('border-primary', 'text-primary');
                             contents[index].classList.add('hidden');
                         }
@@ -1400,6 +1623,7 @@
                         adminMainContent.classList.remove('hidden');
                         adminLoginStatus.textContent = "";
                         adminWelcomeMessage.textContent = `Olá, ${loggedInAdminProfile.displayName}!`;
+                        adminWelcomeMessage.classList.remove('md:hidden');
                         adminLogoutBtn.classList.remove('hidden');
                         
                         if (loggedInAdminProfile.role === 'master') {
@@ -1456,6 +1680,7 @@
                 adminMainContent.classList.add('hidden');
                 adminLoginSection.classList.remove('hidden');
                 adminLogoutBtn.classList.add('hidden');
+                adminWelcomeMessage.classList.add('md:hidden');
                 document.getElementById('admin-username').value = "";
                 document.getElementById('admin-password').value = "";
                 switchTab(tabDashboard); 
@@ -1478,9 +1703,9 @@
                     snapshot.forEach((doc) => {
                         const profile = { id: doc.id, ...doc.data() };
                         const profileEl = document.createElement('div');
-                        profileEl.className = "flex justify-between items-center p-3 bg-gray-700 rounded-md border border-gray-600";
+                        profileEl.className = "flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600";
                         profileEl.innerHTML = `
-                            <div><p class="font-medium text-gray-100">${profile.name}</p></div>
+                            <div><p class="font-medium text-gray-900 dark:text-gray-100">${profile.name}</p></div>
                             <button data-id="${profile.id}" class="delete-profile-btn text-red-500 hover:text-red-400 font-medium flex items-center space-x-1">${trashIcon} <span>Excluir</span></button>
                         `;
                         profilesList.appendChild(profileEl);
@@ -1511,9 +1736,9 @@
                     snapshot.forEach((doc) => {
                         const company = { id: doc.id, ...doc.data() };
                         const companyEl = document.createElement('div');
-                        companyEl.className = "flex justify-between items-center p-3 bg-gray-700 rounded-md border border-gray-600";
+                        companyEl.className = "flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600";
                         companyEl.innerHTML = `
-                            <div><p class="font-medium text-gray-100">${company.name}</p></div>
+                            <div><p class="font-medium text-gray-900 dark:text-gray-100">${company.name}</p></div>
                             <button data-id="${company.id}" class="delete-company-btn text-red-500 hover:text-red-400 font-medium flex items-center space-x-1">${trashIcon} <span>Excluir</span></button>
                         `;
                         companiesList.appendChild(companyEl);
@@ -1558,6 +1783,7 @@
                     currentPage = 1; 
                     renderArrivals(); 
                     updateDashboard();
+                    updateAlerts();
                 }, (error) => {
                     console.error("Erro ao carregar histórico de chegadas:", error);
                     if (arrivalsLog) {
@@ -1637,14 +1863,14 @@
                     snapshot.forEach((doc) => {
                         const admin = { id: doc.id, ...doc.data() };
                         const adminEl = document.createElement('div');
-                        adminEl.className = "flex justify-between items-center p-3 bg-gray-700 rounded-md border border-gray-600";
+                        adminEl.className = "flex justify-between items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600";
                         adminEl.innerHTML = `
                             <div>
-                                <p class="font-medium text-gray-100">${admin.displayName} ${admin.role === 'master' ? '<span class="text-xs font-bold text-primary">(Master)</span>' : ''}</p>
-                                <p class="text-sm text-gray-400">${admin.username}</p>
+                                <p class="font-medium text-gray-900 dark:text-gray-100">${admin.displayName} ${admin.role === 'master' ? '<span class="text-xs font-bold text-primary">(Master)</span>' : ''}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${admin.username}</p>
                             </div>
                             <div class="flex gap-2">
-                                <button data-id="${admin.id}" class="edit-admin-btn text-blue-400 hover:text-blue-300 font-medium flex items-center space-x-1">${editIcon} <span>Editar</span></button>
+                                <button data-id="${admin.id}" class="edit-admin-btn text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-medium flex items-center space-x-1">${editIcon} <span>Editar</span></button>
                                 <button data-id="${admin.id}" class="delete-admin-btn text-red-500 hover:text-red-400 font-medium flex items-center space-x-1">${trashIcon} <span>Excluir</span></button>
                             </div>
                         `;
@@ -1668,7 +1894,7 @@
                                 adminFormPassword.value = "";
                                 adminFormPassword.disabled = true;
                                 adminFormPassword.required = false;
-                                adminFormPassword.placeholder = "Senha (não pode ser alterada aqui)";
+                                adminFormPassword.placeholder = "(Não pode ser alterada aqui)";
                                 adminFormRole.value = adminData.role;
                             }
                         });
@@ -1683,7 +1909,7 @@
                                 window.alert("Você não pode excluir a si mesmo.");
                                 return;
                             }
-                            if (window.confirm("Tem certeza que deseja excluir este admin? (Isso não exclui o login, apenas as permissões).")) {
+                            if (window.confirm("Tem certeza que deseja excluir este admin? Esta ação não pode ser desfeita e NÃO remove o login do Firebase Authentication.")) {
                                 await deleteDoc(doc(adminUsersCollection, idToDelete));
                             }
                         });
@@ -1720,7 +1946,7 @@
                         }
                         
                     } else {
-                        adminCrudStatus.textContent = "A adição de novos admins deve ser feita no Console do Firebase (Authentication).";
+                        adminCrudStatus.textContent = "A adição de novos admins deve ser feita no Console do Firebase (Authentication) e depois configurada no 'Guia de Produção'.";
                         adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
                         return;
                     }
@@ -1768,6 +1994,35 @@
                     renderArrivals();
                 }
             });
+            
+            function updateAlerts() {
+                const overtimeArrivals = allArrivals.filter(a => {
+                    const permanencia = calculatePermanencia(a.timestamp_entrada, a.timestamp_saida);
+                    return (permanencia.diffMs > ONE_DAY_MS) && a.status === 'no_local';
+                });
+                
+                if (overtimeArrivals.length > 0) {
+                    alertBadge.textContent = overtimeArrivals.length;
+                    alertBadge.classList.remove('hidden');
+                    alertBtn.classList.add('text-primary');
+                    alertList.innerHTML = "";
+                    overtimeArrivals.forEach(arrival => {
+                        const alertItem = document.createElement('div');
+                        alertItem.className = "p-3 border-b border-gray-200 dark:border-gray-700";
+                        alertItem.innerHTML = `
+                            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">${arrival.name}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">CPF: ${arrival.cpf}</p>
+                            <p class="text-sm text-red-600 dark:text-red-500 font-medium">${calculatePermanencia(arrival.timestamp_entrada, null).text}</p>
+                        `;
+                        alertList.appendChild(alertItem);
+                    });
+                } else {
+                    alertBadge.classList.add('hidden');
+                    alertBtn.classList.remove('text-primary');
+                    alertList.innerHTML = `<p class="p-4 text-sm text-gray-500 dark:text-gray-400">Nenhum alerta no momento.</p>`;
+                }
+            }
+
 
             function renderArrivals() {
                 if (!arrivalsLog) return;
@@ -1830,34 +2085,34 @@
                 paginatedItems.forEach(arrival => {
                     const row = document.createElement('tr');
                     
-                    const statusClass = arrival.status === 'no_local' ? 'text-secondary' : 'text-gray-300';
+                    const statusClass = arrival.status === 'no_local' ? 'text-secondary' : 'text-gray-500 dark:text-gray-300';
                     const statusText = arrival.status === 'no_local' ? 'No Local' : 'Finalizado';
                     
                     const permanencia = calculatePermanencia(arrival.timestamp_entrada, arrival.timestamp_saida);
                     const isOvertime = (permanencia.diffMs > ONE_DAY_MS) && arrival.status === 'no_local';
-                    const rowClass = isOvertime ? 'bg-red-900/50 hover:bg-red-800/60' : 'hover:bg-gray-700/50';
+                    const rowClass = isOvertime ? 'bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800/60' : 'hover:bg-gray-100 dark:hover:bg-gray-700/50';
                     row.className = `transition-colors duration-150 ${rowClass}`;
 
                     let locationHtml = '---';
                     if (arrival.lat_entrada && arrival.long_entrada) {
-                        locationHtml = `<a href="https://www.google.com/maps?q=${arrival.lat_entrada},${arrival.long_entrada}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">Ver Entrada</a>`;
+                        locationHtml = `<a href="https://www.google.com/maps?q=${arrival.lat_entrada},${arrival.long_entrada}" target="_blank" class="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 underline">Ver Entrada</a>`;
                     }
                     if (arrival.lat_saida && arrival.long_saida) {
-                        locationHtml += ` / <a href="https://www.google.com/maps?q=${arrival.lat_saida},${arrival.long_saida}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">Ver Saída</a>`;
+                        locationHtml += ` / <a href="https://www.google.com/maps?q=${arrival.lat_saida},${arrival.long_saida}" target="_blank" class="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 underline">Ver Saída</a>`;
                     }
 
                     let obsHtml = '';
                     const obsText = (arrival.observation || "").trim();
                     if (obsText) {
                         obsHtml = `
-                            <button data-id="${arrival.id}" class="edit-obs-btn tooltip text-yellow-400 hover:text-yellow-300">
+                            <button data-id="${arrival.id}" class="edit-obs-btn tooltip text-yellow-500 dark:text-yellow-400 hover:text-yellow-600 dark:hover:text-yellow-300">
                                 ${obsNoteIcon}
                                 <span class="tooltiptext">${obsText}</span>
                             </button>
                         `;
                     } else {
                         obsHtml = `
-                            <button data-id="${arrival.id}" class="edit-obs-btn text-gray-500 hover:text-gray-300">
+                            <button data-id="${arrival.id}" class="edit-obs-btn text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
                                 ${obsAddIcon}
                             </button>
                         `;
@@ -1867,7 +2122,7 @@
                     if (loggedInAdminProfile?.role === 'master') {
                         actionButton = `
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <button data-id="${arrival.id}" class="edit-arrival-btn text-blue-400 hover:text-blue-300 font-medium flex items-center space-x-1">
+                                <button data-id="${arrival.id}" class="edit-arrival-btn text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-medium flex items-center space-x-1">
                                     ${adjustIcon} <span>Ajustar</span>
                                 </button>
                             </td>
@@ -1876,18 +2131,18 @@
                     
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${statusClass}">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${arrival.status === 'no_local' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-300'}">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${arrival.status === 'no_local' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}">
                                 ${statusText}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100">${arrival.name || ''}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${arrival.cpf || ''}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${arrival.company || ''}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${arrival.profile || ''}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(arrival.timestamp_entrada)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${formatDate(arrival.timestamp_saida)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${permanencia.text}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${locationHtml}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${arrival.name || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${arrival.cpf || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${arrival.company || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${arrival.profile || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${formatDate(arrival.timestamp_entrada)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${formatDate(arrival.timestamp_saida)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${permanencia.text}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${locationHtml}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm">${obsHtml}</td>
                         ${actionButton}
                     `;
@@ -1984,6 +2239,8 @@
                     return;
                 }
                 
+                const isLight = document.documentElement.classList.contains('light');
+                
                 const backgroundColors = [
                     '#EF4444', '#22C55E', '#3B82F6', '#EAB308', '#8B5CF6', '#F97316'
                 ];
@@ -1995,7 +2252,7 @@
                         datasets: [{
                             data: profileData.data,
                             backgroundColor: backgroundColors.slice(0, profileData.labels.length),
-                            borderColor: '#1f2937', 
+                            borderColor: isLight ? '#ffffff' : '#1f2937', 
                             borderWidth: 2
                         }]
                     },
@@ -2006,7 +2263,7 @@
                             legend: {
                                 position: 'bottom',
                                 labels: {
-                                    color: '#d1d5db' 
+                                    color: isLight ? '#4b5563' : '#d1d5db' 
                                 }
                             }
                         }
@@ -2026,6 +2283,8 @@
                     document.getElementById('companiesBarChart-loading').innerHTML = emptyState("Sem dados de empresas nos últimos 7 dias.", companyIcon);
                     return;
                 }
+                
+                const isLight = document.documentElement.classList.contains('light');
                 
                 companiesBarChartInstance = new Chart(ctx, {
                     type: 'bar',
@@ -2047,16 +2306,16 @@
                             x: {
                                 beginAtZero: true,
                                 ticks: {
-                                    color: '#d1d5db',
+                                    color: isLight ? '#4b5563' : '#d1d5db',
                                     precision: 0 
                                 },
                                 grid: {
-                                    color: '#4b5563' 
+                                    color: isLight ? '#e5e7eb' : '#4b5563' 
                                 }
                             },
                             y: {
                                 ticks: {
-                                    color: '#d1d5db'
+                                    color: isLight ? '#4b5563' : '#d1d5db'
                                 },
                                 grid: {
                                     display: false
@@ -2108,6 +2367,9 @@
                 modalStatus.className = "text-center mt-3 font-medium text-blue-400";
                 
                 const id = modalArrivalId.value;
+                const arrival = allArrivals.find(a => a.id === id);
+                if (!arrival) return;
+
                 const newEntrada = inputToTimestamp(modalTimestampEntrada.value);
                 const newSaida = inputToTimestamp(modalTimestampSaida.value);
 
@@ -2116,24 +2378,21 @@
                     modalStatus.className = "text-center mt-3 font-medium text-red-500";
                     return;
                 }
-
-                // (MODIFICADO) Lógica para atualizar a coleção active_cpfs
-                const arrivalDoc = allArrivals.find(a => a.id === id);
-                const cpf = arrivalDoc.cpf;
                 
                 try {
+                    const newStatus = newSaida ? 'finalizado' : 'no_local';
+                    
                     await updateDoc(doc(arrivalsCollection, id), {
                         timestamp_entrada: newEntrada,
                         timestamp_saida: newSaida,
-                        status: newSaida ? 'finalizado' : 'no_local' 
+                        status: newStatus
                     });
-
-                    // (NOVO) Atualiza a coleção de controle
-                    const cpfDocRef = doc(activeCpfsCollection, cpf);
-                    if (newSaida) {
-                        await deleteDoc(cpfDocRef); // Finalizado, remove
-                    } else {
-                        await setDoc(cpfDocRef, { uid: arrivalDoc.uid, arrivalId: id }); // Ativo, adiciona/garante
+                    
+                    const cpfDocRef = doc(activeCpfsCollection, arrival.cpf);
+                    if (newStatus === 'finalizado' && arrival.status === 'no_local') {
+                        await deleteDoc(cpfDocRef);
+                    } else if (newStatus === 'no_local' && arrival.status === 'finalizado') {
+                        await setDoc(cpfDocRef, { uid: arrival.uid || 'admin_override' });
                     }
                     
                     modalStatus.textContent = "Registro atualizado com sucesso!";
@@ -2151,17 +2410,16 @@
                 modalStatus.textContent = "Forçando saída...";
                 modalStatus.className = "text-center mt-3 font-medium text-blue-400";
                 const id = modalArrivalId.value;
-                const arrivalDoc = allArrivals.find(a => a.id === id);
-                const cpf = arrivalDoc.cpf;
+                const arrival = allArrivals.find(a => a.id === id);
+                if (!arrival) return;
                 
                 try {
                     await updateDoc(doc(arrivalsCollection, id), {
                         timestamp_saida: serverTimestamp(),
                         status: 'finalizado'
                     });
-
-                    // (NOVO) Atualiza a coleção de controle
-                    await deleteDoc(doc(activeCpfsCollection, cpf));
+                    
+                    await deleteDoc(doc(activeCpfsCollection, arrival.cpf));
                     
                     modalStatus.textContent = "Saída registrada!";
                     modalStatus.className = "text-center mt-3 font-medium text-green-500";
@@ -2178,18 +2436,25 @@
                 modalStatus.textContent = "Reabrindo...";
                 modalStatus.className = "text-center mt-3 font-medium text-blue-400";
                 const id = modalArrivalId.value;
-                const arrivalDoc = allArrivals.find(a => a.id === id);
-                const cpf = arrivalDoc.cpf;
+                const arrival = allArrivals.find(a => a.id === id);
+                if (!arrival) return;
                 
                 try {
+                    const cpfDocRef = doc(activeCpfsCollection, arrival.cpf);
+                    const cpfDocSnap = await getDoc(cpfDocRef);
+                    if (cpfDocSnap.exists()) {
+                         modalStatus.textContent = "Erro: Este CPF já possui outra entrada ativa.";
+                         modalStatus.className = "text-center mt-3 font-medium text-red-500";
+                         return;
+                    }
+
                     await updateDoc(doc(arrivalsCollection, id), {
                         timestamp_saida: null,
                         status: 'no_local'
                     });
                     
-                    // (NOVO) Atualiza a coleção de controle
-                    await setDoc(doc(activeCpfsCollection, cpf), { uid: arrivalDoc.uid, arrivalId: id });
-
+                    await setDoc(cpfDocRef, { uid: arrival.uid || 'admin_override' });
+                    
                     modalStatus.textContent = "Registro reaberto!";
                     modalStatus.className = "text-center mt-3 font-medium text-green-500";
                     setTimeout(hideModal, 2000);
@@ -2311,66 +2576,10 @@
             }
             
             userDriverName.addEventListener('input', (e) => { e.target.value = formatName(e.target.value); });
-            userDriverCpf.addEventListener('input', (e) => { e.target.value = formatCPF(e.target.value); });
             userDriverPlate.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
             userDriverPlateTracao.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
             userDriverPlateReboque.addEventListener('input', (e) => { e.target.value = formatPlate(e.target.value); });
         
-            // (NOVO) Lógica de controle do Tutorial
-            function showTutorial() {
-                tutorialModal.classList.remove('hidden');
-                setTimeout(() => {
-                    tutorialModalContent.classList.remove('scale-95', 'opacity-0');
-                    tutorialModalContent.classList.add('scale-100', 'opacity-100');
-                }, 10);
-            }
-
-            function hideTutorial() {
-                tutorialModalContent.classList.add('scale-95', 'opacity-0');
-                tutorialModalContent.classList.remove('scale-100', 'opacity-100');
-                setTimeout(() => {
-                    tutorialModal.classList.add('hidden');
-                }, 300);
-            }
-
-            function updateTutorialSlide(index) {
-                tutorialSlides.forEach((slide, i) => {
-                    slide.classList.toggle('active', i === index);
-                });
-                tutorialDots.forEach((dot, i) => {
-                    dot.classList.toggle('bg-primary', i === index);
-                    dot.classList.toggle('bg-gray-600', i !== index);
-                });
-
-                tutorialPrevBtn.disabled = (index === 0);
-                tutorialNextBtn.classList.toggle('hidden', index === tutorialSlides.length - 1);
-                tutorialFinishBtn.classList.toggle('hidden', index !== tutorialSlides.length - 1);
-                currentTutorialSlide = index;
-            }
-
-            tutorialPrevBtn.addEventListener('click', () => {
-                if (currentTutorialSlide > 0) {
-                    updateTutorialSlide(currentTutorialSlide - 1);
-                }
-            });
-
-            tutorialNextBtn.addEventListener('click', () => {
-                if (currentTutorialSlide < tutorialSlides.length - 1) {
-                    updateTutorialSlide(currentTutorialSlide + 1);
-                }
-            });
-
-            tutorialFinishBtn.addEventListener('click', () => {
-                localStorage.setItem('hasSeenTutorial', 'true');
-                hideTutorial();
-            });
-
-            tutorialCloseBtn.addEventListener('click', () => {
-                localStorage.setItem('hasSeenTutorial', 'true');
-                hideTutorial();
-            });
-
-            updateTutorialSlide(0); // Inicia no primeiro slide
         } 
     </script>
 
