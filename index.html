@@ -6,6 +6,11 @@
     <title>Registro de Motoristas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bibliotecas Adicionais: PDF e QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         
@@ -118,6 +123,30 @@
             visibility: visible;
             opacity: 1;
         }
+        
+        /* Toast Copy Notification */
+        .copy-toast {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10B981;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.70rem;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 20;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .copy-wrapper:hover .copy-toast.show {
+            opacity: 1;
+            top: -30px;
+        }
 
         .dark ::-webkit-scrollbar { width: 8px; height: 8px; }
         .dark ::-webkit-scrollbar-track { background: #1f2937; border-radius: 10px; }
@@ -194,6 +223,41 @@
             background-color: var(--color-primary);
             color: white;
             border-color: var(--color-primary);
+        }
+
+        /* GPS Animation */
+        .gps-ping {
+            position: relative;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #9ca3af; /* Default Gray */
+            transition: background-color 0.3s ease;
+        }
+        .gps-ping::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: inherit;
+            opacity: 0.6;
+            z-index: -1;
+        }
+        .gps-active.gps-ping::before {
+             animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .gps-active { background-color: #22c55e; } /* Green */
+        .gps-searching { background-color: #eab308; } /* Yellow */
+        .gps-error { background-color: #ef4444; } /* Red */
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
         }
     </style>
     
@@ -309,8 +373,16 @@
                             <input type="text" id="user-driver-plate-reboque" placeholder="ABC1234 ou ABC1D23" maxlength="7" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
                         </div>
                     </div>
+                    
+                    <!-- GPS Indicator -->
+                    <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-600 text-xs mt-4">
+                        <span class="text-gray-600 dark:text-gray-300 flex items-center gap-3 w-full">
+                            <div id="gps-indicator-dot" class="gps-ping"></div>
+                            <span id="gps-indicator-text" class="font-medium">Iniciando GPS...</span>
+                        </span>
+                    </div>
 
-                    <div class="pt-4">
+                    <div class="pt-2">
                         <button type="button" id="register-entry-btn" class="w-full bg-secondary text-white font-bold py-3 px-4 rounded-md hover:bg-secondary-dark transition-colors duration-300 flex items-center justify-center space-x-2">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
                             <span>Registrar ENTRADA</span>
@@ -398,7 +470,14 @@
                         </nav>
                         
                         <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                            <div class="relative">
+                            <div class="relative flex items-center gap-2">
+                                <button id="open-qrcode-btn" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" title="Gerar QR Code de Acesso">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
+                                    </svg>
+                                </button>
+
                                 <button id="alert-btn" class="relative text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                       <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a23.842 23.842 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
@@ -428,44 +507,52 @@
                     <div>
                         <div id="tab-content-dashboard">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-shrink-0 bg-secondary rounded-md p-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0-3.071-2.317l-1.07-1.07a9.094 9.094 0 0 0-2.317-3.071l-1.07-1.07A9.094 9.094 0 0 0 6 12a9 9 0 0 0-3 6.72M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <!-- Card 1: Motoristas Ativos -->
+                                <div class="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-800 dark:to-emerald-900 rounded-lg shadow-lg p-6 border border-transparent text-white relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                                    <div class="flex items-center justify-between z-10 relative">
+                                        <div>
+                                            <p class="text-sm font-semibold text-green-100 uppercase tracking-wide">Motoristas Ativos</p>
+                                            <p id="kpi-ativos" class="text-4xl font-extrabold text-white mt-2 drop-shadow-md">--</p>
+                                        </div>
+                                        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                                             </svg>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Motoristas Ativos</p>
-                                            <p id="kpi-ativos" class="text-3xl font-bold text-gray-900 dark:text-gray-100">--</p>
-                                        </div>
                                     </div>
+                                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-xl group-hover:w-36 group-hover:h-36 transition-all duration-500"></div>
                                 </div>
-                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-shrink-0 bg-primary rounded-md p-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+
+                                <!-- Card 2: Entradas Hoje -->
+                                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-900 rounded-lg shadow-lg p-6 border border-transparent text-white relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                                    <div class="flex items-center justify-between z-10 relative">
+                                        <div>
+                                            <p class="text-sm font-semibold text-blue-100 uppercase tracking-wide">Entradas Hoje</p>
+                                            <p id="kpi-entradas-hoje" class="text-4xl font-extrabold text-white mt-2 drop-shadow-md">--</p>
+                                        </div>
+                                        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-white">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
                                             </svg>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Entradas Hoje</p>
-                                            <p id="kpi-entradas-hoje" class="text-3xl font-bold text-gray-900 dark:text-gray-100">--</p>
-                                        </div>
                                     </div>
+                                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-xl group-hover:w-36 group-hover:h-36 transition-all duration-500"></div>
                                 </div>
-                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+
+                                <!-- Card 3: Tempo Médio -->
+                                <div class="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-800 dark:to-pink-900 rounded-lg shadow-lg p-6 border border-transparent text-white relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                                    <div class="flex items-center justify-between z-10 relative">
+                                        <div>
+                                            <p class="text-sm font-semibold text-purple-100 uppercase tracking-wide">Tempo Médio (Hoje)</p>
+                                            <p id="kpi-tempo-medio" class="text-3xl font-extrabold text-white mt-2 drop-shadow-md">--</p>
+                                        </div>
+                                        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-white">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                             </svg>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tempo Médio (Hoje)</p>
-                                            <p id="kpi-tempo-medio" class="text-3xl font-bold text-gray-900 dark:text-gray-100">--</p>
-                                        </div>
                                     </div>
+                                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-xl group-hover:w-36 group-hover:h-36 transition-all duration-500"></div>
                                 </div>
                             </div>
                             
@@ -564,6 +651,12 @@
                                               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                             </svg>
                                             <span>Exportar CSV</span>
+                                        </button>
+                                         <button id="export-pdf-btn" class="w-full sm:w-auto bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                            </svg>
+                                            <span>Exportar PDF</span>
                                         </button>
                                     </div>
                                 </div>
@@ -804,6 +897,19 @@
         </div>
     </div>
 
+    <!-- QR Code Modal -->
+    <div id="qrcode-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm w-full p-6 text-center">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 mb-4">QR Code de Acesso</h3>
+            <div id="qrcode-container" class="flex justify-center mb-4 bg-white p-4 rounded-lg"></div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Escaneie para abrir o aplicativo.</p>
+            <div class="flex space-x-3">
+                <button id="qrcode-print-btn" class="flex-1 bg-secondary text-white font-bold py-2 px-4 rounded-md hover:bg-secondary-dark transition-colors duration-300">Imprimir</button>
+                <button id="qrcode-close-btn" class="flex-1 bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition-colors duration-300">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="tutorial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300 p-4">
         <div id="tutorial-content" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6 transform transition-all scale-95 opacity-0">
             <div class="flex justify-between items-center">
@@ -836,8 +942,8 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                     </svg>
-                    <p class="mt-2 font-medium text-gray-700 dark:text-gray-200">Passo 2: Permissão de Localização</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Ao clicar em "Registrar Entrada" ou "Saída", seu navegador pedirá permissão para acessar sua localização. **Você precisa aceitar** para que o registro seja validado.</p>
+                    <p class="mt-2 font-medium text-gray-700 dark:text-gray-200">Passo 2: Localização Automática</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Observe o indicador de GPS acima do botão de registro. Ele mostrará se sua localização está precisa para registrar a entrada.</p>
                 </div>
             </div>
             
@@ -985,6 +1091,7 @@
         let currentActiveSessionCpf = null; 
         let currentEntryData = null; 
         let cpfSearchTimer = null;
+        let gpsWatchId = null;
         
         let allProfiles = [];
         let allCompanies = [];
@@ -1027,6 +1134,7 @@
                         await checkActiveSession(); 
                         if (adminMainContent) adminMainContent.classList.add('hidden');
                         if (adminLoginSection) adminLoginSection.classList.remove('hidden');
+                        startGPSWatch(); // Start watching for GPS signal immediately for drivers
                     } else {
                         await loadAdminProfile(user.uid);
                     }
@@ -1072,6 +1180,7 @@
                 viewToggleUser.classList.remove('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 viewToggleAdmin.classList.add('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 viewToggleAdmin.classList.remove('bg-primary', 'text-white');
+                startGPSWatch(); // Start GPS for driver view
             });
 
             viewToggleAdmin.addEventListener('click', () => {
@@ -1081,6 +1190,7 @@
                 viewToggleAdmin.classList.remove('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 viewToggleUser.classList.add('bg-transparent', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400', 'hover:bg-gray-300', 'dark:hover:bg-gray-700');
                 viewToggleUser.classList.remove('bg-primary', 'text-white');
+                stopGPSWatch(); // Stop GPS to save battery in admin view
             });
             
             const registerView = document.getElementById('register-view');
@@ -1107,6 +1217,9 @@
             const userDriverPlateReboque = document.getElementById('user-driver-plate-reboque');
             
             const registerEntryBtn = document.getElementById('register-entry-btn');
+            
+            const gpsIndicatorDot = document.getElementById('gps-indicator-dot');
+            const gpsIndicatorText = document.getElementById('gps-indicator-text');
 
             [userDriverName, userDriverCpf, userDriverCompanySelect, userDriverProfileSelect, userDriverPlate, userDriverPlateTracao, userDriverPlateReboque].forEach(el => {
                 el.addEventListener('input', () => {
@@ -1210,13 +1323,50 @@
             }
 
             userDriverCpf.addEventListener('input', (e) => { 
-                e.target.value = formatCPF(e.target.value); 
+                // Improved input masking to not jump cursor
+                const input = e.target;
+                const oldStart = input.selectionStart;
+                const oldLength = input.value.length;
+                
+                let value = input.value.replace(/\D/g, "");
+                if (value.length > 11) value = value.substring(0, 11);
+                
+                let formatted = "";
+                if (value.length > 0) {
+                    formatted = value.substring(0,3);
+                    if (value.length > 3) formatted += "." + value.substring(3,6);
+                    if (value.length > 6) formatted += "." + value.substring(6,9);
+                    if (value.length > 9) formatted += "-" + value.substring(9,11);
+                }
+                
+                input.value = formatted;
+                
+                // Adjust cursor position logic
+                if (input.selectionStart !== null) {
+                    const newLength = formatted.length;
+                    let newPos = oldStart;
+                    
+                    // If adding characters
+                    if (newLength > oldLength) {
+                       // Logic to keep cursor in place is handled naturally mostly, 
+                       // but if we just pasted or typed, browser puts cursor at end of input usually before JS runs.
+                       // However, standard behavior is fine for appending. 
+                       // The tricky part is deleting.
+                    }
+                    
+                    // Simple fix: if cursor was at end, keep at end.
+                    if (oldStart === oldLength) {
+                        newPos = newLength;
+                    }
+                    input.setSelectionRange(newPos, newPos);
+                }
+
                 cpfSearchStatus.innerHTML = "";
                 
-                if (e.target.value.length === 14) {
+                if (value.length === 11) { // 11 digits
                     if (cpfSearchTimer) clearTimeout(cpfSearchTimer);
                     cpfSearchTimer = setTimeout(() => {
-                        fetchDriverProfile(e.target.value);
+                        fetchDriverProfile(formatted);
                     }, 500);
                 }
             });
@@ -1296,6 +1446,66 @@
                 }, 300); 
             }
 
+            // Real-time GPS Watcher
+            function startGPSWatch() {
+                if (gpsWatchId !== null) return; // Already watching
+                
+                if (!navigator.geolocation) {
+                    updateGPSStatus('error', 'GPS não suportado');
+                    return;
+                }
+
+                updateGPSStatus('searching', 'Buscando sinal de GPS...');
+
+                gpsWatchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const accuracy = position.coords.accuracy;
+                        if (accuracy <= 100) {
+                            updateGPSStatus('active', `Sinal GPS: Excelente (+/- ${Math.round(accuracy)}m)`);
+                        } else if (accuracy <= 500) {
+                            updateGPSStatus('active', `Sinal GPS: Bom (+/- ${Math.round(accuracy)}m)`);
+                        } else {
+                            updateGPSStatus('searching', `Sinal Fraco (+/- ${Math.round(accuracy)}m)`);
+                        }
+                    },
+                    (error) => {
+                        console.warn("GPS Error: " + error.code);
+                        let msg = "Erro de GPS";
+                        if (error.code === 1) msg = "Permissão GPS Negada";
+                        if (error.code === 2) msg = "Sinal GPS Indisponível";
+                        if (error.code === 3) msg = "Tempo limite GPS";
+                        updateGPSStatus('error', msg);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            }
+
+            function stopGPSWatch() {
+                if (gpsWatchId !== null) {
+                    navigator.geolocation.clearWatch(gpsWatchId);
+                    gpsWatchId = null;
+                }
+            }
+
+            function updateGPSStatus(status, text) {
+                gpsIndicatorText.textContent = text;
+                gpsIndicatorDot.className = 'gps-ping'; // Reset base class
+                
+                if (status === 'active') {
+                    gpsIndicatorDot.classList.add('gps-active');
+                    gpsIndicatorText.classList.remove('text-red-500', 'text-yellow-500');
+                    gpsIndicatorText.classList.add('text-green-600', 'dark:text-green-400');
+                } else if (status === 'searching') {
+                    gpsIndicatorDot.classList.add('gps-searching');
+                    gpsIndicatorText.classList.remove('text-red-500', 'text-green-600', 'dark:text-green-400');
+                    gpsIndicatorText.classList.add('text-yellow-600', 'dark:text-yellow-400');
+                } else {
+                    gpsIndicatorDot.classList.add('gps-error');
+                    gpsIndicatorText.classList.remove('text-green-600', 'dark:text-green-400', 'text-yellow-600', 'dark:text-yellow-400');
+                    gpsIndicatorText.classList.add('text-red-500');
+                }
+            }
+
             async function getCoords() {
                 return new Promise((resolve, reject) => {
                     if (!navigator.geolocation) {
@@ -1312,6 +1522,8 @@
                         },
                         (error) => {
                             console.warn("Erro ao obter geolocalização: ", error.message);
+                            // If we fail here, we might still want to let them pass if watchPosition was successful previously? 
+                            // For now, reject to maintain strictness.
                             resolve({ latitude: null, longitude: null });
                         },
                         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
@@ -1324,6 +1536,7 @@
                 sessionWelcomeName.textContent = name;
                 registerView.classList.add('hidden');
                 activeSessionView.classList.remove('hidden');
+                stopGPSWatch(); // Save battery when session is just counting time
 
                 const timerDisplay = document.getElementById('session-active-timer');
                 if (activeSessionTimer) clearInterval(activeSessionTimer);
@@ -1358,6 +1571,7 @@
                 cpfSearchStatus.innerHTML = "";
                 userDriverProfileSelect.dispatchEvent(new Event('change'));
                 if (activeSessionTimer) clearInterval(activeSessionTimer);
+                startGPSWatch(); // Restart GPS watch
             }
 
             async function checkActiveSession() {
@@ -1404,8 +1618,16 @@
                         return;
                     }
 
-                    showUserNotification('success', 'Aguarde...', 'Obtendo sua localização. Aprove a solicitação do navegador.');
-                    const coords = await getCoords();
+                    showUserNotification('success', 'Aguarde...', 'Validando localização...');
+                    const coords = await getCoords(); // Final check before submit
+                    
+                    if (coords.latitude === null) {
+                         showUserNotification('error', 'Erro de Localização', 'Permita o acesso ao GPS para continuar.');
+                         registerEntryBtn.disabled = false;
+                         registerEntryBtn.innerHTML = `<span>Registrar ENTRADA</span>`;
+                         return;
+                    }
+
                     const entryTime = Timestamp.now(); 
                     
                     currentEntryData = {
@@ -1451,7 +1673,7 @@
                 sessionExitBtn.textContent = "Registrando...";
                 
                 try {
-                    showUserNotification('success', 'Aguarde...', 'Obtendo sua localização. Aprove a solicitação do navegador.');
+                    showUserNotification('success', 'Aguarde...', 'Validando localização...');
                     const coords = await getCoords();
                     
                     await updateDoc(doc(arrivalsCollection, sessionId), {
@@ -1521,6 +1743,7 @@
             
             const arrivalsLog = document.getElementById('arrivals-log');
             const exportExcelBtn = document.getElementById('export-excel-btn');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
             const clearFiltersBtn = document.getElementById('clear-filters-btn');
 
             const filterName = document.getElementById('filter-name');
@@ -1565,6 +1788,11 @@
             const alertDropdown = document.getElementById('alert-dropdown');
             const alertBadge = document.getElementById('alert-badge');
             const alertList = document.getElementById('alert-list');
+
+            const openQrcodeBtn = document.getElementById('open-qrcode-btn');
+            const qrcodeModal = document.getElementById('qrcode-modal');
+            const qrcodeCloseBtn = document.getElementById('qrcode-close-btn');
+            const qrcodePrintBtn = document.getElementById('qrcode-print-btn');
 
             alertBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1705,6 +1933,23 @@
                 });
             }
 
+            // Copy to clipboard utility
+            window.copyToClipboard = (text, element) => {
+                if (!text) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    // Create toast
+                    const toast = document.createElement('span');
+                    toast.className = 'copy-toast show';
+                    toast.textContent = 'Copiado!';
+                    element.appendChild(toast);
+                    
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                });
+            };
 
             function formatDate(timestamp) {
                 if (!timestamp) return "---";
@@ -1813,6 +2058,8 @@
                         adminWelcomeMessage.textContent = `Olá, ${loggedInAdminProfile.displayName}!`;
                         adminWelcomeMessage.classList.remove('md:hidden');
                         adminLogoutBtn.classList.remove('hidden');
+                        
+                        stopGPSWatch(); // Ensure GPS is off for admin
                         
                         if (loggedInAdminProfile.role === 'master') {
                             tabManageAdmins.classList.remove('hidden');
@@ -2196,7 +2443,13 @@
                 renderArrivals();
             });
 
-            // Quick Filter Logic
+            // Quick Filter Logic - FIXED TIMEZONE ISSUE
+            const toLocalISO = (date) => {
+                const offset = date.getTimezoneOffset() * 60000;
+                const localDate = new Date(date.getTime() - offset);
+                return localDate.toISOString().split('T')[0];
+            };
+
             document.querySelectorAll('.quick-filter-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
@@ -2218,8 +2471,8 @@
                         start = new Date(today.getFullYear(), today.getMonth(), 1);
                     }
                     
-                    filterDateStart.value = start.toISOString().split('T')[0];
-                    filterDateEnd.value = end.toISOString().split('T')[0];
+                    filterDateStart.value = toLocalISO(start);
+                    filterDateEnd.value = toLocalISO(end);
                     
                     currentPage = 1;
                     renderArrivals();
@@ -2385,6 +2638,15 @@
                         `;
                     }
                     
+                    // Plates display logic - ADDED COPY FUNCTIONALITY
+                    let plateDisplay = "";
+                    if (arrival.plate) {
+                         plateDisplay = `<span class="copy-wrapper relative cursor-pointer hover:text-primary transition-colors" onclick="copyToClipboard('${arrival.plate}', this)">${arrival.plate}</span>`;
+                    } else {
+                         if (arrival.plate_tracao) plateDisplay += `T: <span class="copy-wrapper relative cursor-pointer hover:text-primary transition-colors" onclick="copyToClipboard('${arrival.plate_tracao}', this)">${arrival.plate_tracao}</span> `;
+                         if (arrival.plate_reboque) plateDisplay += `R: <span class="copy-wrapper relative cursor-pointer hover:text-primary transition-colors" onclick="copyToClipboard('${arrival.plate_reboque}', this)">${arrival.plate_reboque}</span>`;
+                    }
+
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${statusClass}">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${arrival.status === 'no_local' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}">
@@ -2392,7 +2654,10 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${arrival.name || ''}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${arrival.cpf || ''}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                            <span class="copy-wrapper relative cursor-pointer hover:text-primary transition-colors" onclick="copyToClipboard('${arrival.cpf || ''}', this)">${arrival.cpf || ''}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${plateDisplay}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${arrival.company || ''}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${arrival.profile || ''}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">${formatDate(arrival.timestamp_entrada)}</td>
@@ -2868,6 +3133,81 @@
                 document.body.removeChild(link);
             }
             exportExcelBtn.addEventListener('click', exportToExcel);
+            
+            // PDF Export
+            exportPdfBtn.addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(18);
+                doc.text("Relatório de Controle de Pátio", 14, 22);
+                
+                doc.setFontSize(10);
+                doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 30);
+                
+                const tableColumn = ["Status", "Nome", "CPF", "Placa", "Transportadora", "Entrada", "Permanência"];
+                const tableRows = [];
+
+                filteredArrivals.forEach(arrival => {
+                    const permanencia = calculatePermanencia(arrival.timestamp_entrada, arrival.timestamp_saida).text.replace(" (em andamento)", "");
+                    const statusText = arrival.status === 'no_local' ? 'No Local' : 'Finalizado';
+                    
+                    let plateInfo = arrival.plate || "";
+                    if(!plateInfo && (arrival.plate_tracao || arrival.plate_reboque)) {
+                        plateInfo = `${arrival.plate_tracao || ''} / ${arrival.plate_reboque || ''}`;
+                    }
+
+                    const arrivalData = [
+                        statusText,
+                        arrival.name,
+                        arrival.cpf,
+                        plateInfo,
+                        arrival.company,
+                        formatDate(arrival.timestamp_entrada),
+                        permanencia
+                    ];
+                    tableRows.push(arrivalData);
+                });
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 40,
+                });
+
+                doc.save("relatorio_patio.pdf");
+            });
+            
+            // QR Code Logic
+            openQrcodeBtn.addEventListener('click', () => {
+                const container = document.getElementById('qrcode-container');
+                container.innerHTML = "";
+                
+                new QRCode(container, {
+                    text: window.location.href,
+                    width: 128,
+                    height: 128
+                });
+                
+                qrcodeModal.classList.remove('hidden');
+            });
+
+            qrcodeCloseBtn.addEventListener('click', () => {
+                qrcodeModal.classList.add('hidden');
+            });
+
+            qrcodePrintBtn.addEventListener('click', () => {
+                const printWindow = window.open('', '', 'height=500,width=500');
+                const qrHTML = document.getElementById('qrcode-container').innerHTML;
+                printWindow.document.write('<html><head><title>QR Code Acesso</title></head><body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">');
+                printWindow.document.write('<h2>Acesso Motoristas</h2>');
+                printWindow.document.write(qrHTML);
+                printWindow.document.write('<p style="margin-top:20px;">' + window.location.href + '</p>');
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            });
+
 
             function formatName(name) {
                 return name.split(' ').map(word => 
@@ -2875,6 +3215,7 @@
                 ).join(' ');
             }
             function formatCPF(cpf) {
+                // Helper moved to input listener for better UX
                 cpf = cpf.replace(/\D/g, ""); 
                 if (cpf.length > 11) cpf = cpf.substring(0, 11);
                 cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
