@@ -146,6 +146,55 @@
              background-color: #ffffff;
              border: 1px solid #e5e7eb;
         }
+
+        /* Estilos para a Paginação Avançada */
+        .pagination-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            height: 2rem;
+            padding: 0 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .dark .pagination-btn {
+            background-color: #374151;
+            color: #e5e7eb;
+            border-color: #4b5563;
+        }
+        .light .pagination-btn {
+            background-color: #ffffff;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+        .pagination-btn:hover:not(:disabled):not(.active) {
+            opacity: 0.8;
+        }
+        .dark .pagination-btn:hover:not(:disabled):not(.active) {
+            background-color: #4b5563;
+        }
+        .light .pagination-btn:hover:not(:disabled):not(.active) {
+            background-color: #f3f4f6;
+        }
+        .pagination-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .quick-filter-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
     </style>
     
     <script>
@@ -157,6 +206,16 @@
             document.documentElement.classList.remove('light');
         }
     </script>
+<script type="importmap">
+{
+  "imports": {
+    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
 </head>
 <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-colors duration-300">
 
@@ -170,8 +229,8 @@
     <div class="container mx-auto p-4 md:p-8 max-w-7xl min-h-screen">
 
         <header class="mb-6">
-            <h1 class="text-xl md:text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-center space-x-2 relative">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 md:w-8 md:h-8 text-primary">
+            <h1 class="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-center space-x-2 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-primary">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
                 <span>Registro de Atividade</span>
@@ -490,45 +549,65 @@
 
                         <div id="tab-content-arrivals" class="hidden">
                             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
-                                <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
-                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Histórico de Atividades</h3>
-                                    <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                        <button id="clear-filters-btn" class="w-full sm:w-auto bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors duration-300 flex items-center justify-center space-x-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                              <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                            <span>Limpar Filtros</span>
-                                        </button>
+                                
+                                <!-- Header & Actions -->
+                                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                                    <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                        Histórico de Atividades
+                                    </h3>
+                                    <div class="flex flex-wrap gap-2">
                                         <button id="export-excel-btn" class="w-full sm:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                             </svg>
-                                            <span>Exportar</span>
+                                            <span>Exportar CSV</span>
                                         </button>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
-                                    <input type="text" id="filter-name" placeholder="Filtrar por Nome" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                                    <input type="text" id="filter-cpf" placeholder="Filtrar por CPF" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                                    <input type="text" id="filter-plate" placeholder="Filtrar por Placa" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                                    <input type="text" id="filter-company" placeholder="Filtrar por Transportadora" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                                    <input type="text" id="filter-profile" placeholder="Filtrar por Perfil" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400">
-                                    <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
-                                        <option value="">Todos os Status</option>
+
+                                <!-- Quick Filters -->
+                                <div class="mb-4 flex flex-wrap gap-2 items-center">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">Período:</span>
+                                    <button class="quick-filter-btn px-3 py-1 text-sm rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300" data-range="today">Hoje</button>
+                                    <button class="quick-filter-btn px-3 py-1 text-sm rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300" data-range="yesterday">Ontem</button>
+                                    <button class="quick-filter-btn px-3 py-1 text-sm rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300" data-range="week">Últimos 7 dias</button>
+                                    <button class="quick-filter-btn px-3 py-1 text-sm rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300" data-range="month">Este Mês</button>
+                                    <button id="clear-filters-btn" class="px-3 py-1 text-sm text-red-500 hover:text-red-700 font-medium ml-auto flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                        </svg>
+                                        Limpar Filtros
+                                    </button>
+                                </div>
+
+                                <!-- Detailed Filters Grid -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <input type="text" id="filter-name" placeholder="Nome" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm">
+                                    <input type="text" id="filter-cpf" placeholder="CPF" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm">
+                                    <input type="text" id="filter-plate" placeholder="Placa" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm">
+                                    <input type="text" id="filter-company" placeholder="Transportadora" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm">
+                                    <input type="text" id="filter-profile" placeholder="Perfil" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm">
+                                    <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm">
+                                        <option value="">Todos Status</option>
                                         <option value="no_local">No Local</option>
                                         <option value="finalizado">Finalizado</option>
                                     </select>
                                     
-                                    <div class="lg:col-span-2">
-                                        <label for="filter-date-start" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data Início (Entrada)</label>
-                                        <input type="date" id="filter-date-start" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" style="color-scheme: dark;">
+                                    <div class="lg:col-span-3">
+                                        <label for="filter-date-start" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Data Início (Entrada)</label>
+                                        <input type="date" id="filter-date-start" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" style="color-scheme: dark;">
                                     </div>
-                                    <div class="lg:col-span-2">
-                                        <label for="filter-date-end" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data Fim (Entrada)</label>
-                                        <input type="date" id="filter-date-end" class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white" style="color-scheme: dark;">
+                                    <div class="lg:col-span-3">
+                                        <label for="filter-date-end" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Data Fim (Entrada)</label>
+                                        <input type="date" id="filter-date-end" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" style="color-scheme: dark;">
                                     </div>
                                 </div>
-                                <div class="overflow-x-auto">
+
+                                <!-- Table -->
+                                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 mb-4">
                                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                         <thead class="bg-gray-100 dark:bg-gray-700">
                                             <tr>
@@ -537,10 +616,10 @@
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">CPF</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Transportadora</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Perfil</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data Entrada</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data Saída</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Entrada</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Saída</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Permanência</th>
-                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Localização</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Local</th>
                                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Obs.</th>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
                                             </tr>
@@ -549,17 +628,41 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="flex items-center justify-between py-3" id="pagination-controls">
-                                    <button id="prev-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
-                                        Anterior
-                                    </button>
-                                    <span id="page-info" class="text-sm text-gray-500 dark:text-gray-400">Página 1 de 1</span>
-                                    <button id="next-page-btn" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                                        Próxima
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                                    </button>
+
+                                <!-- Advanced Pagination -->
+                                <div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-2" id="pagination-controls">
+                                    
+                                    <!-- Rows per page -->
+                                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                        <span>Mostrar</span>
+                                        <select id="rows-per-page" class="mx-2 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary">
+                                            <option value="10">10</option>
+                                            <option value="25" selected>25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <span>por página</span>
+                                    </div>
+
+                                    <!-- Page Numbers -->
+                                    <div class="flex items-center gap-1">
+                                        <button id="prev-page-btn" class="pagination-btn" title="Anterior">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+                                        </button>
+                                        
+                                        <div id="page-numbers" class="flex gap-1 overflow-x-auto max-w-[200px] md:max-w-none"></div>
+                                        
+                                        <button id="next-page-btn" class="pagination-btn" title="Próxima">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Info Text -->
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        <span id="page-info">Mostrando 0 a 0 de 0</span>
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
 
@@ -618,8 +721,8 @@
 
     </div>
 
-    <div id="user-notification-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0 m-4" id="user-notification-content">
+    <div id="user-notification-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-sm w-full p-6 text-center transform transition-all scale-95 opacity-0" id="user-notification-content">
             <div id="modal-notification-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full">
             </div>
             <h3 id="modal-notification-title" class="text-2xl font-semibold leading-6 text-gray-900 dark:text-gray-100 mt-5"></h3>
@@ -627,8 +730,8 @@
         </div>
     </div>
 
-    <div id="edit-arrival-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6 m-4 max-h-[90vh] overflow-y-auto">
+    <div id="edit-arrival-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Ajuste Manual de Registro</h3>
                 <button id="modal-close-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
@@ -674,8 +777,8 @@
         </div>
     </div>
 
-    <div id="observation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6 m-4 max-h-[90vh] overflow-y-auto">
+    <div id="observation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Adicionar/Editar Observação</h3>
                 <button id="modal-obs-close-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
@@ -702,7 +805,7 @@
     </div>
 
     <div id="tutorial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 transition-opacity duration-300 p-4">
-        <div id="tutorial-content" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6 transform transition-all scale-95 opacity-0 m-4 max-h-[90vh] overflow-y-auto">
+        <div id="tutorial-content" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-w-lg w-full p-6 transform transition-all scale-95 opacity-0">
             <div class="flex justify-between items-center">
                 <h3 class="text-xl font-semibold leading-6 text-gray-900 dark:text-gray-100" id="tutorial-title">
                     Bem-vindo ao Registro de Atividade!
@@ -897,7 +1000,7 @@
         let companiesBarChartInstance = null;
 
         let currentPage = 1;
-        const recordsPerPage = 25;
+        let recordsPerPage = 25;
 
         document.addEventListener('DOMContentLoaded', () => {
             mainApp();
@@ -1004,57 +1107,6 @@
             const userDriverPlateReboque = document.getElementById('user-driver-plate-reboque');
             
             const registerEntryBtn = document.getElementById('register-entry-btn');
-
-            const confirmationModal = document.getElementById('confirmation-modal');
-            const confirmTitle = document.getElementById('confirm-title');
-            const confirmMessage = document.getElementById('confirm-message');
-            const confirmBtnYes = document.getElementById('confirm-btn-yes');
-            const confirmBtnCancel = document.getElementById('confirm-btn-cancel');
-
-            function showConfirmationModal(title, message, confirmText = 'Confirmar', isDestructive = true) {
-                return new Promise((resolve) => {
-                    confirmTitle.textContent = title;
-                    confirmMessage.textContent = message;
-                    confirmBtnYes.textContent = confirmText;
-
-                    if (isDestructive) {
-                        confirmBtnYes.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'focus:ring-blue-500');
-                        confirmBtnYes.classList.add('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-500');
-                    } else {
-                         confirmBtnYes.classList.remove('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-500');
-                         confirmBtnYes.classList.add('bg-blue-600', 'hover:bg-blue-700', 'focus:ring-blue-500');
-                    }
-
-                    confirmationModal.classList.remove('hidden');
-                    
-                    const modalPanel = confirmationModal.querySelector('.transform');
-                    setTimeout(() => {
-                        modalPanel.classList.remove('opacity-0', 'scale-95');
-                        modalPanel.classList.add('opacity-100', 'scale-100');
-                    }, 10);
-
-                    const close = (result) => {
-                        modalPanel.classList.remove('opacity-100', 'scale-100');
-                        modalPanel.classList.add('opacity-0', 'scale-95');
-                        setTimeout(() => {
-                            confirmationModal.classList.add('hidden');
-                            resolve(result);
-                        }, 300);
-                    };
-
-                    const newYesBtn = confirmBtnYes.cloneNode(true);
-                    const newCancelBtn = confirmBtnCancel.cloneNode(true);
-                    confirmBtnYes.parentNode.replaceChild(newYesBtn, confirmBtnYes);
-                    confirmBtnCancel.parentNode.replaceChild(newCancelBtn, confirmBtnCancel);
-
-                    // Re-select after replacement
-                    const currentYesBtn = document.getElementById('confirm-btn-yes');
-                    const currentCancelBtn = document.getElementById('confirm-btn-cancel');
-
-                    currentYesBtn.addEventListener('click', () => close(true));
-                    currentCancelBtn.addEventListener('click', () => close(false));
-                });
-            }
 
             [userDriverName, userDriverCpf, userDriverCompanySelect, userDriverProfileSelect, userDriverPlate, userDriverPlateTracao, userDriverPlateReboque].forEach(el => {
                 el.addEventListener('input', () => {
@@ -1479,6 +1531,12 @@
             const filterStatus = document.getElementById('filter-status');
             const filterDateStart = document.getElementById('filter-date-start');
             const filterDateEnd = document.getElementById('filter-date-end');
+
+            const rowsPerPageSelect = document.getElementById('rows-per-page');
+            const prevPageBtn = document.getElementById('prev-page-btn');
+            const nextPageBtn = document.getElementById('next-page-btn');
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            const pageInfo = document.getElementById('page-info');
             
             const editArrivalModal = document.getElementById('edit-arrival-modal');
             const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -1502,9 +1560,6 @@
             const modalObsSaveBtn = document.getElementById('modal-obs-save-btn');
 
             const paginationControls = document.getElementById('pagination-controls');
-            const prevPageBtn = document.getElementById('prev-page-btn');
-            const nextPageBtn = document.getElementById('next-page-btn');
-            const pageInfo = document.getElementById('page-info');
 
             const alertBtn = document.getElementById('alert-btn');
             const alertDropdown = document.getElementById('alert-dropdown');
@@ -1603,6 +1658,52 @@
                 localStorage.setItem('tutorialSeen', 'true');
                 hideTutorial();
             });
+
+            function showConfirmationModal(title, message, confirmText = 'Confirmar', isDestructive = true) {
+                return new Promise((resolve) => {
+                    const modal = document.getElementById('confirmation-modal');
+                    const titleEl = document.getElementById('confirm-title');
+                    const msgEl = document.getElementById('confirm-message');
+                    const btnYes = document.getElementById('confirm-btn-yes');
+                    const btnCancel = document.getElementById('confirm-btn-cancel');
+
+                    titleEl.textContent = title;
+                    msgEl.textContent = message;
+                    btnYes.textContent = confirmText;
+
+                    if (isDestructive) {
+                        btnYes.className = "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm";
+                    } else {
+                         btnYes.className = "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm";
+                    }
+
+                    modal.classList.remove('hidden');
+                    const panel = modal.querySelector('div[class*="transform"]');
+                    setTimeout(() => {
+                         panel.classList.remove('opacity-0', 'scale-95');
+                         panel.classList.add('opacity-100', 'scale-100');
+                    }, 10);
+
+                    const cleanup = () => {
+                        panel.classList.add('opacity-0', 'scale-95');
+                        panel.classList.remove('opacity-100', 'scale-100');
+                        setTimeout(() => modal.classList.add('hidden'), 300);
+                    };
+
+                    const handleYes = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+
+                    const handleCancel = () => {
+                        cleanup();
+                        resolve(false);
+                    };
+
+                    btnYes.onclick = handleYes;
+                    btnCancel.onclick = handleCancel;
+                });
+            }
 
 
             function formatDate(timestamp) {
@@ -1802,10 +1903,17 @@
                             const btn = e.target.closest('button');
                             if (!btn) return;
                             if (loggedInAdminProfile?.role !== 'admin' && loggedInAdminProfile?.role !== 'master') {
-                                showUserNotification('error', 'Acesso Negado', "Você não tem permissão para excluir.");
+                                showUserNotification('error', 'Acesso Negado', 'Você não tem permissão para excluir.');
                                 return;
                             }
-                            const confirmed = await showConfirmationModal("Excluir Perfil", "Tem certeza que deseja excluir este perfil?", "Excluir");
+                            
+                            const confirmed = await showConfirmationModal(
+                                "Excluir Perfil",
+                                "Tem certeza que deseja excluir este perfil? Esta ação não pode ser desfeita.",
+                                "Excluir",
+                                true
+                            );
+
                             if (confirmed) {
                                 await deleteDoc(doc(profilesCollection, btn.dataset.id));
                             }
@@ -1836,10 +1944,17 @@
                             const btn = e.target.closest('button');
                             if (!btn) return;
                             if (loggedInAdminProfile?.role !== 'admin' && loggedInAdminProfile?.role !== 'master') {
-                                showUserNotification('error', 'Acesso Negado', "Você não tem permissão para excluir.");
+                                showUserNotification('error', 'Acesso Negado', 'Você não tem permissão para excluir.');
                                 return;
                             }
-                            const confirmed = await showConfirmationModal("Excluir Transportadora", "Tem certeza que deseja excluir esta transportadora?", "Excluir");
+
+                            const confirmed = await showConfirmationModal(
+                                "Excluir Transportadora",
+                                "Tem certeza que deseja excluir esta transportadora? Esta ação não pode ser desfeita.",
+                                "Excluir",
+                                true
+                            );
+
                             if (confirmed) {
                                 await deleteDoc(doc(companiesCollection, btn.dataset.id));
                             }
@@ -1995,10 +2110,17 @@
                             if (!btn) return;
                             const idToDelete = btn.dataset.id;
                             if (idToDelete === loggedInAdminProfile.id) {
-                                showUserNotification('error', 'Ação Negada', "Você não pode excluir a si mesmo.");
+                                showUserNotification('error', 'Ação Inválida', 'Você não pode excluir a si mesmo.');
                                 return;
                             }
-                            const confirmed = await showConfirmationModal("Excluir Admin", "Tem certeza que deseja excluir este admin? Esta ação não pode ser desfeita.", "Excluir");
+
+                            const confirmed = await showConfirmationModal(
+                                "Excluir Administrador",
+                                "Tem certeza que deseja excluir este admin? Esta ação não pode ser desfeita e NÃO remove o login do Firebase Authentication.",
+                                "Excluir",
+                                true
+                            );
+
                             if (confirmed) {
                                 await deleteDoc(doc(adminUsersCollection, idToDelete));
                             }
@@ -2066,6 +2188,46 @@
                 filterStatus.value = "";
                 filterDateStart.value = "";
                 filterDateEnd.value = "";
+                
+                // Remove active state from quick filters
+                document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+
+                currentPage = 1;
+                renderArrivals();
+            });
+
+            // Quick Filter Logic
+            document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const range = e.target.dataset.range;
+                    const today = new Date();
+                    let start = new Date();
+                    let end = new Date();
+                    
+                    if (range === 'today') {
+                        // Start and end are today
+                    } else if (range === 'yesterday') {
+                        start.setDate(today.getDate() - 1);
+                        end.setDate(today.getDate() - 1);
+                    } else if (range === 'week') {
+                        start.setDate(today.getDate() - 7);
+                    } else if (range === 'month') {
+                        start = new Date(today.getFullYear(), today.getMonth(), 1);
+                    }
+                    
+                    filterDateStart.value = start.toISOString().split('T')[0];
+                    filterDateEnd.value = end.toISOString().split('T')[0];
+                    
+                    currentPage = 1;
+                    renderArrivals();
+                });
+            });
+
+            rowsPerPageSelect.addEventListener('change', (e) => {
+                recordsPerPage = parseInt(e.target.value);
                 currentPage = 1;
                 renderArrivals();
             });
@@ -2152,23 +2314,27 @@
                 });
 
                 const totalRecords = filteredArrivals.length;
-                const totalPages = Math.ceil(totalRecords / recordsPerPage);
+                const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+
+                // Logic for rendering page numbers
+                renderPaginationNumbers(totalPages);
 
                 if (totalRecords === 0) {
                     arrivalsLog.innerHTML = `<tr><td colspan="12">${emptyState("Nenhum registro encontrado.", listIcon)}</td></tr>`;
-                    paginationControls.classList.add('hidden');
+                    paginationControls.classList.remove('hidden'); // Keep visible even if empty to allow reset
+                    pageInfo.textContent = `Mostrando 0 a 0 de 0`;
                     return;
                 }
 
                 paginationControls.classList.remove('hidden');
                 
                 const startIndex = (currentPage - 1) * recordsPerPage;
-                const endIndex = startIndex + recordsPerPage;
+                const endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
                 const paginatedItems = filteredArrivals.slice(startIndex, endIndex);
 
                 prevPageBtn.disabled = (currentPage === 1);
                 nextPageBtn.disabled = (currentPage === totalPages);
-                pageInfo.textContent = `Página ${currentPage} de ${totalPages} (${totalRecords} registros)`;
+                pageInfo.textContent = `Mostrando ${startIndex + 1} a ${endIndex} de ${totalRecords}`;
 
                 arrivalsLog.innerHTML = ""; 
 
@@ -2240,6 +2406,61 @@
                 });
             }
             
+            function renderPaginationNumbers(totalPages) {
+                pageNumbersContainer.innerHTML = '';
+                
+                let startPage = Math.max(1, currentPage - 1);
+                let endPage = Math.min(totalPages, currentPage + 1);
+                
+                // Always show at least 3 buttons if possible
+                if (endPage - startPage < 2) {
+                    if (startPage === 1) {
+                        endPage = Math.min(3, totalPages);
+                    } else if (endPage === totalPages) {
+                        startPage = Math.max(1, totalPages - 2);
+                    }
+                }
+                
+                // Show first page if not in range
+                if (startPage > 1) {
+                    const btn = document.createElement('button');
+                    btn.className = 'pagination-btn';
+                    btn.textContent = '1';
+                    btn.addEventListener('click', () => { currentPage = 1; renderArrivals(); });
+                    pageNumbersContainer.appendChild(btn);
+                    
+                    if (startPage > 2) {
+                        const dots = document.createElement('span');
+                        dots.className = 'text-gray-500 px-1';
+                        dots.textContent = '...';
+                        pageNumbersContainer.appendChild(dots);
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    btn.textContent = i;
+                    btn.addEventListener('click', () => { currentPage = i; renderArrivals(); });
+                    pageNumbersContainer.appendChild(btn);
+                }
+
+                // Show last page if not in range
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                         const dots = document.createElement('span');
+                        dots.className = 'text-gray-500 px-1';
+                        dots.textContent = '...';
+                        pageNumbersContainer.appendChild(dots);
+                    }
+                    const btn = document.createElement('button');
+                    btn.className = 'pagination-btn';
+                    btn.textContent = totalPages;
+                    btn.addEventListener('click', () => { currentPage = totalPages; renderArrivals(); });
+                    pageNumbersContainer.appendChild(btn);
+                }
+            }
+
             function updateDashboard() {
                 if (!loggedInAdminProfile || !allArrivals) return; 
 
