@@ -2344,9 +2344,9 @@
                                 adminFormUsername.value = adminData.username || "Email (Ver no Console)";
                                 adminFormUsername.disabled = true;
                                 adminFormPassword.value = "";
-                                adminFormPassword.disabled = true;
+                                adminFormPassword.disabled = false;
                                 adminFormPassword.required = false;
-                                adminFormPassword.placeholder = "(Não pode ser alterada aqui)";
+                                adminFormPassword.placeholder = "(Digite nova senha (opcional))";
                                 adminFormRole.value = adminData.role;
                             }
                         });
@@ -2376,29 +2376,30 @@
                     });
                 }, (error) => console.error("Erro ao carregar lista de admins:", error));
 
-                addAdminForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const id = adminEditId.value; 
-                    const newAdminData = {
+                    addAdminForm.addEventListener('submit', async (e) => {
+                      e.preventDefault();
+                      const id = adminEditId.value; 
+                    
+                      const newAdminData = {
                         displayName: adminDisplayName.value,
                         username: adminFormUsername.value,
                         role: adminFormRole.value
-                    };
+                      };
                     
-                    if (id) {
+                      if (id) {
                         adminCrudStatus.textContent = "Salvando...";
                         adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
-                        
+                    
                         try {
-                            await updateDoc(doc(adminUsersCollection, id), {
-                                displayName: newAdminData.displayName,
-                                role: newAdminData.role
-                            });
-                            
-                            adminCrudStatus.textContent = "Admin atualizado!";
-                            adminCrudStatus.className = "text-center mt-3 font-medium text-green-500";
-                            resetAdminForm();
-                            setTimeout(() => { adminCrudStatus.textContent = ""; }, 3000);
+                          await updateDoc(doc(adminUsersCollection, id), {
+                            displayName: newAdminData.displayName,
+                            role: newAdminData.role
+                          });
+                    
+                          adminCrudStatus.textContent = "Admin atualizado!";
+                          adminCrudStatus.className = "text-center mt-3 font-medium text-green-500";
+                          resetAdminForm();
+                          setTimeout(() => { adminCrudStatus.textContent = ""; }, 3000);
                         } catch (error) {
                             console.error("Erro ao salvar admin:", error);
                             adminCrudStatus.textContent = "Erro ao salvar.";
@@ -3278,4 +3279,5 @@
 
 </body>
 </html>
+
 
