@@ -2376,43 +2376,59 @@
                     });
                 }, (error) => console.error("Erro ao carregar lista de admins:", error));
 
-                    addAdminForm.addEventListener('submit', async (e) => {
-                      e.preventDefault();
-                      const id = adminEditId.value; 
-                    
-                      const newAdminData = {
-                        displayName: adminDisplayName.value,
-                        username: adminFormUsername.value,
-                        role: adminFormRole.value
-                      };
-                    
-                      if (id) {
-                        adminCrudStatus.textContent = "Salvando...";
-                        adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
-                    
-                        try {
-                          await updateDoc(doc(adminUsersCollection, id), {
-                            displayName: newAdminData.displayName,
-                            role: newAdminData.role
-                          });
-                    
-                          adminCrudStatus.textContent = "Admin atualizado!";
-                          adminCrudStatus.className = "text-center mt-3 font-medium text-green-500";
-                          resetAdminForm();
-                          setTimeout(() => { adminCrudStatus.textContent = ""; }, 3000);
-                        } catch (error) {
-                            console.error("Erro ao salvar admin:", error);
-                            adminCrudStatus.textContent = "Erro ao salvar.";
-                            adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
-                        }
-                        
-                    } else {
-                        adminCrudStatus.textContent = "A adição de novos admins deve ser feita no Console do Firebase (Authentication) e depois configurada no 'Guia de Produção'.";
-                        adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
-                        return;
+                addAdminForm.addEventListener('submit', async (e) => {
+                  e.preventDefault();
+                
+                  const id = adminEditId.value; 
+                  const newPassword = adminFormPassword.value.trim();
+                
+                  const newAdminData = {
+                    displayName: adminDisplayName.value,
+                    username: adminFormUsername.value,
+                    role: adminFormRole.value
+                  };
+                
+                  if (!id) {
+                    adminCrudStatus.textContent =
+                      "A adição de novos admins deve ser feita no Console do Firebase (Authentication) e depois configurada no 'Guia de Produção'.";
+                    adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
+                    return;
+                  }
+                
+                  adminCrudStatus.textContent = "Salvando...";
+                  adminCrudStatus.className = "text-center mt-3 font-medium text-blue-400";
+                
+                  try {
+                    // 🔁 Atualiza dados no Firestore
+                    await updateDoc(doc(adminUsersCollection, id), {
+                      displayName: newAdminData.displayName,
+                      role: newAdminData.role
+                    });
+                
+                    // 🔐 Troca de senha (somente do próprio usuário)
+                    if (newPassword) {
+                      const auth = getAuth();
+                      const user = auth.currentUser;
+                
+                      if (!user || user.uid !== id) {
+                        throw new Error("Você só pode alterar a sua própria senha.");
+                      }
+                
+                      await updatePassword(user, newPassword);
                     }
-
+                
+                    adminCrudStatus.textContent = "Admin atualizado!";
+                    adminCrudStatus.className = "text-center mt-3 font-medium text-green-500";
+                    resetAdminForm();
+                    setTimeout(() => { adminCrudStatus.textContent = ""; }, 3000);
+                
+                  } catch (error) {
+                    console.error("Erro ao salvar admin:", error);
+                    adminCrudStatus.textContent = error.message || "Erro ao salvar.";
+                    adminCrudStatus.className = "text-center mt-3 font-medium text-red-500";
+                  }
                 });
+
                 adminCancelEditBtn.addEventListener('click', resetAdminForm);
             }
 
@@ -3279,5 +3295,6 @@
 
 </body>
 </html>
+
 
 
